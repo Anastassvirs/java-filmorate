@@ -40,6 +40,7 @@ public class FilmController {
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) {
         if (filmAlreadyExist(film)) {
+            log.debug("Произошла ошибка: Введенный фильм уже зарегистрирован");
             throw new AlreadyExistException("Такой фильм уже зарегистрирован");
         } else if (validate(film)) {
             log.debug("Добавлен новый фильм: {}", film.toString());
@@ -65,17 +66,23 @@ public class FilmController {
     private boolean validate(Film film) {
         try {
             if (film.getName().equals("")) {
+                log.debug("Произошла ошибка: Поле названия фильма не может быть пустым");
                 throw new ValidationException("Поле названия фильма не может быть пустым");
             } else if (Objects.nonNull(film.getDescription()) && film.getDescription().length() > 200) {
+                log.debug("Произошла ошибка: Максимальная длина описания — 200 символов");
                 throw new ValidationException("Максимальная длина описания — 200 символов");
-            } else if (Objects.nonNull(film.getReleaseDate()) && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            } else if (Objects.nonNull(film.getReleaseDate())
+                    && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+                log.debug("Произошла ошибка: Дата релиза должна быть не раньше 28 декабря 1895 года");
                 throw new ValidationException("Дата релиза должна быть не раньше 28 декабря 1895 года");
             } else if (Objects.nonNull(film.getDuration()) && (film.getDuration().intValue() <= 0)) {
+                log.debug("Произошла ошибка: Продолжительность фильма должна быть положительной");
                 throw new ValidationException("Продолжительность фильма должна быть положительной");
             } else {
                 return true;
             }
         } catch (NullPointerException ex) {
+            log.debug("Произошла ошибка: Поле названия фильма не может быть пустым");
             throw new ValidationException("Поле названия фильма не может быть пустым");
         }
     }
@@ -86,7 +93,8 @@ public class FilmController {
             if (filmAlreadyExist(film)) {
                 films.put(film.getId(), film);
             } else {
-                throw new ValidationException("Такого пользователя не существует");
+                log.debug("Произошла ошибка: Введенного фильма не существует");
+                throw new ValidationException("Такого фильма не существует");
             }
             log.debug("Добавлен/обновлен фильм: {}", film);
             return film;
