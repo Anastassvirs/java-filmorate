@@ -1,12 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.exeptions.UserAlreadyExistException;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exeptions.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -14,13 +10,21 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
-@Controller
+@RestController
 public class UserController {
 
-    private final HashMap<String, User> users = new HashMap();
-    private List<User> listUsers = new ArrayList<>();
+    private HashMap<Long, User> users;
+    private Long numberOfUsers;
+    private List<User> listUsers;
+
+    public UserController() {
+        users = new HashMap();
+        listUsers = new ArrayList<>();
+        numberOfUsers = (long) 0;
+    }
 
     @GetMapping("/users")
     public List<User> findAll() {
@@ -30,53 +34,70 @@ public class UserController {
 
     private void updateList() {
         listUsers = new ArrayList();
-        for (User user: users.values()) {
-            listUsers.add(user);
-        }
+        listUsers.addAll(users.values());
     }
 
     @PostMapping(value = "/users")
     public User create(@RequestBody User user) {
         if (userAlreadyExist(user)) {
-            throw new UserAlreadyExistException("Такой пользователь уже зарегистрирован");
-        } else if (user.getEmail().equals("") || user.getEmail() == null) {
-            throw new ValidationException("Поле email не может быть пустым");
-        } else if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Поле email должно содержать символ @");
-        } else if (user.getLogin().equals("") || user.getLogin() == null) {
-            throw new ValidationException("Поле login не может быть пустым");
-        } else if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Поле login не может содержать пробелы");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
+            throw new AlreadyExistException("Такой пользователь уже зарегистрирован");
         } else {
-            if (user.getName().equals("") || user.getName() == null) {
-                user.setName(user.getLogin());
+            if (validate(user)) {
+                if (Objects.isNull(user.getName()) || user.getName().equals("")) {
+                    user.setName(user.getLogin());
+                }
+                log.debug("Добавлен новый пользователь: {}", user);
+                numberOfUsers++;
+                user.setId(numberOfUsers);
+                users.put(numberOfUsers, user);
+                return user;
+            } else {
+                throw new ValidationException("Что-то пошло не так");
             }
-            log.debug("Добавлен новый пользователь: {}", user.toString());
-            users.put(user.getEmail(), user);
-            return user;
         }
     }
 
     private boolean userAlreadyExist(User user) {
-        boolean userExist = false;
         for (User oldUser: users.values()) {
-            if (oldUser.equals(user)) {
-                userExist = true;
-                return userExist;
+            if (Objects.equals(oldUser.getId(), user.getId())) {
+                return true;
             }
         }
-        return userExist;
+        return false;
+    }
+
+    private static boolean validate(User user) throws ValidationException{
+        try {
+            if (user.getEmail().equals("")) {
+                throw new ValidationException("Поле email не может быть пустым");
+            } else if (!user.getEmail().contains("@")) {
+                throw new ValidationException("Поле email должно содержать символ @");
+            } else if (user.getLogin().equals("")) {
+                throw new ValidationException("Поле login не может быть пустым");
+            } else if (user.getLogin().contains(" ")) {
+                throw new ValidationException("Поле login не может содержать пробелы");
+            } else if (Objects.nonNull(user.getBirthday()) && user.getBirthday().isAfter(LocalDate.now())) {
+                throw new ValidationException("Дата рождения не может быть в будущем");
+            } else {
+                return true;
+            }
+        } catch (NullPointerException ex) {
+            throw new ValidationException("Поле email и login не могут быть пустыми");
+        }
     }
 
     @PutMapping(value = "/users")
     public User updateOrCreate(@RequestBody User user) {
-        if (user.getEmail().equals("") || user.getEmail() == null) {
+        if(validate(user)) {
+            if (userAlreadyExist(user)) {
+                users.put(user.getId(), user);
+            } else {
+                throw new ValidationException("Такого пользователя не существует");
+            }
+            log.debug("Обновлен/добавлен пользователь: {}", user);
             return user;
         } else {
-            users.put(user.getEmail(), user);
-            return user;
+            return null;
         }
     }
 }
