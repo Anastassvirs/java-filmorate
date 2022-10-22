@@ -48,10 +48,8 @@ public class FilmController {
             numberOfFilms++;
             film.setId(numberOfFilms);
             films.put(film.getId(), film);
-            return film;
-        } else {
-            return null;
         }
+        return film;
     }
 
     private boolean filmAlreadyExist(Film film) {
@@ -77,9 +75,8 @@ public class FilmController {
         } else if (Objects.nonNull(film.getDuration()) && (film.getDuration().intValue() <= 0)) {
             log.debug("Произошла ошибка: Продолжительность фильма должна быть положительной");
             throw new ValidationException("Продолжительность фильма должна быть положительной");
-        } else {
-            return true;
         }
+        return true;
     }
 
     @PutMapping
@@ -92,9 +89,7 @@ public class FilmController {
                 throw new ValidationException("Такого фильма не существует");
             }
             log.debug("Добавлен/обновлен фильм: {}", film);
-            return film;
-        } else {
-            return null;
         }
+        return film;
     }
 }

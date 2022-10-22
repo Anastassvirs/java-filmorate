@@ -52,10 +52,8 @@ public class UserController {
                 numberOfUsers++;
                 user.setId(numberOfUsers);
                 users.put(numberOfUsers, user);
-                return user;
-            } else {
-                throw new ValidationException("Что-то пошло не так");
             }
+            return user;
         }
     }
 
@@ -84,9 +82,8 @@ public class UserController {
         } else if (Objects.nonNull(user.getBirthday()) && user.getBirthday().isAfter(LocalDate.now())) {
             log.debug("Произошла ошибка: Дата рождения не может быть в будущем");
             throw new ValidationException("Дата рождения не может быть в будущем");
-        } else {
-            return true;
         }
+        return true;
     }
 
     @PutMapping
@@ -99,9 +96,7 @@ public class UserController {
                 throw new ValidationException("Такого пользователя не существует");
             }
             log.debug("Обновлен/добавлен пользователь: {}", user);
-            return user;
-        } else {
-            return null;
         }
+        return user;
     }
 }
