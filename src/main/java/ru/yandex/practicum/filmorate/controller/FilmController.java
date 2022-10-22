@@ -14,6 +14,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@RequestMapping(value = "/films")
 public class FilmController {
     private HashMap<Long, Film> films;
     private Long numberOfFilms;
@@ -25,7 +26,7 @@ public class FilmController {
         numberOfFilms = (long) 0;
     }
 
-    @GetMapping("/films")
+    @GetMapping
     public List<Film> findAll() {
         log.debug("Текущее количество фильмов: {}", films.size());
         updateList();
@@ -37,7 +38,7 @@ public class FilmController {
         filmList.addAll(films.values());
     }
 
-    @PostMapping(value = "/films")
+    @PostMapping
     public Film create(@RequestBody Film film) {
         if (filmAlreadyExist(film)) {
             log.debug("Произошла ошибка: Введенный фильм уже зарегистрирован");
@@ -87,7 +88,7 @@ public class FilmController {
         }
     }
 
-    @PutMapping(value = "/films")
+    @PutMapping
     public Film updateOrCreate(@RequestBody Film film) {
         if (validate(film)) {
             if (filmAlreadyExist(film)) {

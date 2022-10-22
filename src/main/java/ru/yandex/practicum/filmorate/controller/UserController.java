@@ -14,6 +14,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@RequestMapping(value = "/users")
 public class UserController {
 
     private HashMap<Long, User> users;
@@ -26,7 +27,7 @@ public class UserController {
         numberOfUsers = (long) 0;
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public List<User> findAll() {
         updateList();
         return listUsers;
@@ -37,7 +38,7 @@ public class UserController {
         listUsers.addAll(users.values());
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping
     public User create(@RequestBody User user) {
         if (userAlreadyExist(user)) {
             log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
@@ -93,7 +94,7 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/users")
+    @PutMapping
     public User updateOrCreate(@RequestBody User user) {
         if(validate(user)) {
             if (userAlreadyExist(user)) {
