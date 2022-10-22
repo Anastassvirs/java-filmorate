@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exeptions.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         if (filmAlreadyExist(film)) {
             log.debug("Произошла ошибка: Введенный фильм уже зарегистрирован");
             throw new AlreadyExistException("Такой фильм уже зарегистрирован");
@@ -62,10 +63,7 @@ public class FilmController {
     }
 
     private boolean validate(Film film) {
-        if (Objects.equals(film.getName(), null) || film.getName().equals("")) {
-            log.debug("Произошла ошибка: Поле названия фильма не может быть пустым");
-            throw new ValidationException("Поле названия фильма не может быть пустым");
-        } else if (Objects.nonNull(film.getDescription()) && film.getDescription().length() > 200) {
+        if (Objects.nonNull(film.getDescription()) && film.getDescription().length() > 200) {
             log.debug("Произошла ошибка: Максимальная длина описания — 200 символов");
             throw new ValidationException("Максимальная длина описания — 200 символов");
         } else if (Objects.nonNull(film.getReleaseDate())
@@ -80,7 +78,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateOrCreate(@RequestBody Film film) {
+    public Film updateOrCreate(@Valid @RequestBody Film film) {
         if (validate(film)) {
             if (filmAlreadyExist(film)) {
                 films.put(film.getId(), film);

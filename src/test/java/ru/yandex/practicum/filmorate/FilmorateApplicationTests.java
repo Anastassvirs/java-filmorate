@@ -18,9 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class FilmorateApplicationTests {
 
-	static UserController userController;
-	static FilmController filmController;
-
+	private static UserController userController;
+	private static FilmController filmController;
 
 	@BeforeAll
 	static void init() {
@@ -107,52 +106,11 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void NullOrEmptyUsermail() {
-		User newUser = new User(null, "cool_user");
-		User newUser2 = new User("", "cool_user");
-
-		ValidationException ex = assertThrows(ValidationException.class, () -> userController.create(newUser));
-		assertEquals("Поле email не может быть пустым", ex.getMessage());
-		ex = assertThrows(ValidationException.class, () -> userController.create(newUser2));
-		assertEquals("Поле email не может быть пустым", ex.getMessage());
-	}
-
-	@Test
-	void NullOrEmptyFilmName() {
-		Film newFilm = new Film(null);
-		Film newFilm2 = new Film("");
-
-		ValidationException ex = assertThrows(ValidationException.class, () -> filmController.create(newFilm));
-		assertEquals("Поле названия фильма не может быть пустым", ex.getMessage());
-		ex = assertThrows(ValidationException.class, () -> filmController.create(newFilm2));
-		assertEquals("Поле названия фильма не может быть пустым", ex.getMessage());
-	}
-
-	@Test
-	void NullOrEmptyUserLogin() {
-		User newUser = new User("emailll@yandex.r", null);
-		User newUser2 = new User("yeah@gmail.com", "");
-
-		ValidationException ex = assertThrows(ValidationException.class, () -> userController.create(newUser));
-		assertEquals("Поле login не может быть пустым", ex.getMessage());
-		ex = assertThrows(ValidationException.class, () -> userController.create(newUser2));
-		assertEquals("Поле login не может быть пустым", ex.getMessage());
-	}
-
-	@Test
 	void LoginContainsSpace() {
 		User newUser = new User("em@yandex.r", "cool user");
 
 		ValidationException ex = assertThrows(ValidationException.class, () -> userController.create(newUser));
 		assertEquals("Поле login не может содержать пробелы", ex.getMessage());
-	}
-
-	@Test
-	void EmailDoesntContainsAt() {
-		User newUser = new User("emailll", "cool_user");
-
-		ValidationException ex = assertThrows(ValidationException.class, () -> userController.create(newUser));
-		assertEquals("Поле email должно содержать символ @", ex.getMessage());
 	}
 
 	@Test

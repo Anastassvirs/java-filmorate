@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exeptions.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         if (userAlreadyExist(user)) {
             log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
             throw new AlreadyExistException("Такой пользователь уже зарегистрирован");
@@ -67,16 +68,7 @@ public class UserController {
     }
 
     private static boolean validate(User user) throws ValidationException{
-        if (Objects.equals(user.getEmail(), null) || user.getEmail().equals("")) {
-            log.debug("Произошла ошибка: Поле email не может быть пустым");
-            throw new ValidationException("Поле email не может быть пустым");
-        } else if (!user.getEmail().contains("@")) {
-            log.debug("Произошла ошибка: Поле email должно содержать символ @");
-            throw new ValidationException("Поле email должно содержать символ @");
-        } else if (Objects.equals(user.getLogin(), null) || user.getLogin().equals("")) {
-            log.debug("Произошла ошибка: Поле login не может быть пустым");
-            throw new ValidationException("Поле login не может быть пустым");
-        } else if (user.getLogin().contains(" ")) {
+        if (Objects.nonNull(user.getLogin()) && user.getLogin().contains(" ")) {
             log.debug("Произошла ошибка: Поле login не может содержать пробелы");
             throw new ValidationException("Поле login не может содержать пробелы");
         } else if (Objects.nonNull(user.getBirthday()) && user.getBirthday().isAfter(LocalDate.now())) {
@@ -87,7 +79,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateOrCreate(@RequestBody User user) {
+    public User updateOrCreate(@Valid @RequestBody User user) {
         if(validate(user)) {
             if (userAlreadyExist(user)) {
                 users.put(user.getId(), user);
