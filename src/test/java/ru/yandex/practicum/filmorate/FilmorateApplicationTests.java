@@ -112,7 +112,7 @@ class FilmorateApplicationTests {
 		User newUser2 = new User("", "cool_user");
 
 		ValidationException ex = assertThrows(ValidationException.class, () -> userController.create(newUser));
-		assertEquals("Поля email и login не могут быть пустыми", ex.getMessage());
+		assertEquals("Поле email не может быть пустым", ex.getMessage());
 		ex = assertThrows(ValidationException.class, () -> userController.create(newUser2));
 		assertEquals("Поле email не может быть пустым", ex.getMessage());
 	}
@@ -134,7 +134,7 @@ class FilmorateApplicationTests {
 		User newUser2 = new User("yeah@gmail.com", "");
 
 		ValidationException ex = assertThrows(ValidationException.class, () -> userController.create(newUser));
-		assertEquals("Поля email и login не могут быть пустыми", ex.getMessage());
+		assertEquals("Поле login не может быть пустым", ex.getMessage());
 		ex = assertThrows(ValidationException.class, () -> userController.create(newUser2));
 		assertEquals("Поле login не может быть пустым", ex.getMessage());
 	}

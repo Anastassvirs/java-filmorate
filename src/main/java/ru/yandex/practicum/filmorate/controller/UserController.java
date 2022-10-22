@@ -69,28 +69,23 @@ public class UserController {
     }
 
     private static boolean validate(User user) throws ValidationException{
-        try {
-            if (user.getEmail().equals("")) {
-                log.debug("Произошла ошибка: Поле email не может быть пустым");
-                throw new ValidationException("Поле email не может быть пустым");
-            } else if (!user.getEmail().contains("@")) {
-                log.debug("Произошла ошибка: Поле email должно содержать символ @");
-                throw new ValidationException("Поле email должно содержать символ @");
-            } else if (user.getLogin().equals("")) {
-                log.debug("Произошла ошибка: Поле login не может быть пустым");
-                throw new ValidationException("Поле login не может быть пустым");
-            } else if (user.getLogin().contains(" ")) {
-                log.debug("Произошла ошибка: Поле login не может содержать пробелы");
-                throw new ValidationException("Поле login не может содержать пробелы");
-            } else if (Objects.nonNull(user.getBirthday()) && user.getBirthday().isAfter(LocalDate.now())) {
-                log.debug("Произошла ошибка: Дата рождения не может быть в будущем");
-                throw new ValidationException("Дата рождения не может быть в будущем");
-            } else {
-                return true;
-            }
-        } catch (NullPointerException ex) {
-            log.debug("Произошла ошибка: Поля email и login не могут быть пустыми");
-            throw new ValidationException("Поля email и login не могут быть пустыми");
+        if (Objects.equals(user.getEmail(), null) || user.getEmail().equals("")) {
+            log.debug("Произошла ошибка: Поле email не может быть пустым");
+            throw new ValidationException("Поле email не может быть пустым");
+        } else if (!user.getEmail().contains("@")) {
+            log.debug("Произошла ошибка: Поле email должно содержать символ @");
+            throw new ValidationException("Поле email должно содержать символ @");
+        } else if (Objects.equals(user.getLogin(), null) || user.getLogin().equals("")) {
+            log.debug("Произошла ошибка: Поле login не может быть пустым");
+            throw new ValidationException("Поле login не может быть пустым");
+        } else if (user.getLogin().contains(" ")) {
+            log.debug("Произошла ошибка: Поле login не может содержать пробелы");
+            throw new ValidationException("Поле login не может содержать пробелы");
+        } else if (Objects.nonNull(user.getBirthday()) && user.getBirthday().isAfter(LocalDate.now())) {
+            log.debug("Произошла ошибка: Дата рождения не может быть в будущем");
+            throw new ValidationException("Дата рождения не может быть в будущем");
+        } else {
+            return true;
         }
     }
 
