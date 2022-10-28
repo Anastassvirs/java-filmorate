@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ class FilmorateApplicationTests {
 	@BeforeAll
 	static void init() {
 		userController = new UserController(new UserService());
-		filmController = new FilmController();
+		filmController = new FilmController(new FilmService());
 	}
 
 	@Test
@@ -41,7 +42,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmAdd() {
-		filmController = new FilmController();
+		filmController = new FilmController(new FilmService());
 		Film newFilm = new Film("Крепкий орешек");
 		filmController.create(newFilm);
 
@@ -71,7 +72,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmsAdd() {
-		filmController = new FilmController();
+		filmController = new FilmController(new FilmService());
 		Film newFilm = new Film("Зеленый фонарь");
 		filmController.create(newFilm);
 		Film newFilm2 = new Film("Зеленая книга");
