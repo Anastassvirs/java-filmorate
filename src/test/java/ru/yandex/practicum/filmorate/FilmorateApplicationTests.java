@@ -5,10 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exeptions.AlreadyExistException;
-import ru.yandex.practicum.filmorate.exeptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,13 +24,13 @@ class FilmorateApplicationTests {
 
 	@BeforeAll
 	static void init() {
-		userController = new UserController();
+		userController = new UserController(new UserService());
 		filmController = new FilmController();
 	}
 
 	@Test
 	void userAdd() {
-		userController = new UserController();
+		userController = new UserController(new UserService());
 		User newUser = new User("email@yandex.ru", "cool_user");
 		userController.create(newUser);
 
@@ -51,7 +52,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void usersAdd() {
-		userController = new UserController();
+		userController = new UserController(new UserService());
 		User newUser = new User("hahahaemail@yandex.ru", "cool_user");
 		userController.create(newUser);
 		User newUser2 = new User("email2@yandex.ru", "not_so_cool_user");
