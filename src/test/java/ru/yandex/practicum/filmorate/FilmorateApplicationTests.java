@@ -9,8 +9,8 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,13 +25,13 @@ class FilmorateApplicationTests {
 
 	@BeforeAll
 	static void init() {
-		userController = new UserController(new UserService());
-		filmController = new FilmController(new FilmService());
+		userController = new UserController(new InMemoryUserStorage());
+		filmController = new FilmController(new InMemoryFilmStorage());
 	}
 
 	@Test
 	void userAdd() {
-		userController = new UserController(new UserService());
+		userController = new UserController(new InMemoryUserStorage());
 		User newUser = new User("email@yandex.ru", "cool_user");
 		userController.create(newUser);
 
@@ -42,7 +42,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmAdd() {
-		filmController = new FilmController(new FilmService());
+		filmController = new FilmController(new InMemoryFilmStorage());
 		Film newFilm = new Film("Крепкий орешек");
 		filmController.create(newFilm);
 
@@ -53,7 +53,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void usersAdd() {
-		userController = new UserController(new UserService());
+		userController = new UserController(new InMemoryUserStorage());
 		User newUser = new User("hahahaemail@yandex.ru", "cool_user");
 		userController.create(newUser);
 		User newUser2 = new User("email2@yandex.ru", "not_so_cool_user");
@@ -72,7 +72,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmsAdd() {
-		filmController = new FilmController(new FilmService());
+		filmController = new FilmController(new InMemoryFilmStorage());
 		Film newFilm = new Film("Зеленый фонарь");
 		filmController.create(newFilm);
 		Film newFilm2 = new Film("Зеленая книга");
