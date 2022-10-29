@@ -25,12 +25,14 @@ public class InMemoryUserStorage implements UserStorage{
         numberOfUsers = (long) 0;
     }
 
+    @Override
     public List<User> findAll() {
         listUsers = new ArrayList();
         listUsers.addAll(users.values());
         return listUsers;
     }
 
+    @Override
     public User createUser(User user) {
         if (userAlreadyExist(user)) {
             log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
@@ -49,6 +51,7 @@ public class InMemoryUserStorage implements UserStorage{
         }
     }
 
+    @Override
     public User updateUser(User user) {
         if(validate(user)) {
             if (userAlreadyExist(user)) {
@@ -60,6 +63,17 @@ public class InMemoryUserStorage implements UserStorage{
             log.debug("Обновлен/добавлен пользователь: {}", user);
         }
         return user;
+    }
+
+    @Override
+    public User deleteUser(User user) {
+        users.remove(user.getId());
+        return user;
+    }
+
+    @Override
+    public User findById(Long id) {
+        return users.get(id);
     }
 
     private boolean userAlreadyExist(User user) {
@@ -80,9 +94,5 @@ public class InMemoryUserStorage implements UserStorage{
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
         return true;
-    }
-
-    public User findById(Long id) {
-        return users.get(id);
     }
 }
