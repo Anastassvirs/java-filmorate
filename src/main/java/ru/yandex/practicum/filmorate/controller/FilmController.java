@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.Valid;
@@ -12,9 +13,11 @@ import java.util.List;
 public class FilmController {
 
     private final InMemoryFilmStorage inMemoryFilmStorage;
+    private final FilmService filmService;
 
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage) {
+    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
+        this.filmService = filmService;
     }
 
     @GetMapping
@@ -30,5 +33,15 @@ public class FilmController {
     @PutMapping
     public Film updateOrCreate(@Valid @RequestBody Film film) {
         return inMemoryFilmStorage.updateFilm(film);
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public void addFriend(@PathVariable Long filmId, Long userId) {
+        filmService.addLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void deleteFriend(@PathVariable Long filmId, Long userId) {
+        filmService.deleteLike(filmId, userId);
     }
 }

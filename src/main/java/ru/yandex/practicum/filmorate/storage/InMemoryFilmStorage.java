@@ -26,12 +26,19 @@ public class InMemoryFilmStorage implements FilmStorage{
         numberOfFilms = (long) 0;
     }
 
+    @Override
     public List<Film> findAll() {
         log.debug("Текущее количество фильмов: {}", films.size());
         updateList();
         return filmList;
     }
 
+    @Override
+    public Film findById(Long id) {
+        return films.get(id);
+    }
+
+    @Override
     public Film createFilm(Film film) {
         if (filmAlreadyExist(film)) {
             log.debug("Произошла ошибка: Введенный фильм уже зарегистрирован");
@@ -45,6 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage{
         return film;
     }
 
+    @Override
     public Film updateFilm(Film film) {
         if (validate(film)) {
             if (filmAlreadyExist(film)) {
@@ -55,6 +63,12 @@ public class InMemoryFilmStorage implements FilmStorage{
             }
             log.debug("Добавлен/обновлен фильм: {}", film);
         }
+        return film;
+    }
+
+    @Override
+    public Film deleteFilm(Film film) {
+        films.remove(film.getId());
         return film;
     }
 

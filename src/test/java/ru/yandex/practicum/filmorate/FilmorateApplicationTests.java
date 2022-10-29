@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
@@ -28,7 +29,8 @@ class FilmorateApplicationTests {
 	static void init() {
 		InMemoryUserStorage storage = new InMemoryUserStorage();
 		userController = new UserController(storage, new UserService(storage));
-		filmController = new FilmController(new InMemoryFilmStorage());
+		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
+		filmController = new FilmController(storage2, new FilmService(storage2));
 	}
 
 	@Test
@@ -45,7 +47,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmAdd() {
-		filmController = new FilmController(new InMemoryFilmStorage());
+		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
+		filmController = new FilmController(storage2, new FilmService(storage2));
 		Film newFilm = new Film("Крепкий орешек");
 		filmController.create(newFilm);
 
@@ -76,7 +79,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmsAdd() {
-		filmController = new FilmController(new InMemoryFilmStorage());
+		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
+		filmController = new FilmController(storage2, new FilmService(storage2));
 		Film newFilm = new Film("Зеленый фонарь");
 		filmController.create(newFilm);
 		Film newFilm2 = new Film("Зеленая книга");
