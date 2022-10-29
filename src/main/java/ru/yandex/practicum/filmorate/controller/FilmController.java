@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -15,6 +16,7 @@ public class FilmController {
     private final InMemoryFilmStorage inMemoryFilmStorage;
     private final FilmService filmService;
 
+    @Autowired
     public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
         this.filmService = filmService;
@@ -43,5 +45,10 @@ public class FilmController {
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteFriend(@PathVariable Long filmId, Long userId) {
         filmService.deleteLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> findFirstTenByLikes() {
+        return filmService.findfirstNByLikes(10);
     }
 }
