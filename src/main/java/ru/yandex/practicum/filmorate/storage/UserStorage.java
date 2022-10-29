@@ -7,6 +7,8 @@ import java.util.List;
 public interface UserStorage {
     List<User> findAll();
 
+    User findById(Long id);
+
     User createUser(User film);
 
     User updateUser(User film);

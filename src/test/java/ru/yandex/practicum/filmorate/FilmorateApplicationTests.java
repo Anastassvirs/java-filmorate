@@ -9,8 +9,10 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,13 +27,15 @@ class FilmorateApplicationTests {
 
 	@BeforeAll
 	static void init() {
-		userController = new UserController(new InMemoryUserStorage());
+		InMemoryUserStorage storage = new InMemoryUserStorage();
+		userController = new UserController(storage, new UserService(storage));
 		filmController = new FilmController(new InMemoryFilmStorage());
 	}
 
 	@Test
 	void userAdd() {
-		userController = new UserController(new InMemoryUserStorage());
+		InMemoryUserStorage storage = new InMemoryUserStorage();
+		userController = new UserController(storage, new UserService(storage));
 		User newUser = new User("email@yandex.ru", "cool_user");
 		userController.create(newUser);
 
@@ -53,7 +57,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void usersAdd() {
-		userController = new UserController(new InMemoryUserStorage());
+		InMemoryUserStorage storage = new InMemoryUserStorage();
+		userController = new UserController(storage, new UserService(storage));
 		User newUser = new User("hahahaemail@yandex.ru", "cool_user");
 		userController.create(newUser);
 		User newUser2 = new User("email2@yandex.ru", "not_so_cool_user");
