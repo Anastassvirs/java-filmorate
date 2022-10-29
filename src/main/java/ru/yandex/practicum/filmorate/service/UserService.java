@@ -29,6 +29,15 @@ public class UserService {
         storage.findById(user2Id).removeFromFriends(user1Id);
     }
 
+    public List<User> findUserFriends(Long userId) {
+        List<User> listOfFriends = new ArrayList<>();
+        Set<Long> setOfFriends = storage.findById(userId).getFriends();
+        for (Long friendId : setOfFriends) {
+            listOfFriends.add(storage.findById(friendId));
+        }
+        return listOfFriends;
+    }
+
     public List<User> findMutualFriends(Long user1Id, Long user2Id) {
         List<User> mutualFriends = new ArrayList<>();
         Set<Long> user1Friends = storage.findById(user1Id).getFriends();

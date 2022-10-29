@@ -32,6 +32,16 @@ public class UserController {
         return userStorage.findById(userId);
     }
 
+    @GetMapping("/{user1}/friends/common/{user2}")
+    public List<User> findMutualFriends(@PathVariable Long user1Id, Long user2Id) {
+        return userService.findMutualFriends(user1Id, user2Id);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public List<User> findUserFriends(@PathVariable Long userId) {
+        return userService.findUserFriends(userId);
+    }
+
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         return userStorage.createUser(user);
@@ -50,10 +60,5 @@ public class UserController {
     @DeleteMapping("/{user1}/friends/{user2}")
     public void deleteFriend(@PathVariable Long user1Id, Long user2Id) {
         userService.deleteFriend(user1Id, user2Id);
-    }
-
-    @GetMapping("/{user1}/friends/common/{user2}")
-    public List<User> findMutualFriends(@PathVariable Long user1Id, Long user2Id) {
-        return userService.findMutualFriends(user1Id, user2Id);
     }
 }

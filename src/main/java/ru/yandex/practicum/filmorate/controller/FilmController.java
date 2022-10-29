@@ -57,4 +57,9 @@ public class FilmController {
     public List<Film> findFirstTenByLikes() {
         return filmService.findfirstNByLikes(10);
     }
+
+    @GetMapping("/popular/{count}")
+    public List<Film> findFirstNByLikes(@PathVariable Integer count) {
+        return filmService.findfirstNByLikes(count);
+    }
 }
