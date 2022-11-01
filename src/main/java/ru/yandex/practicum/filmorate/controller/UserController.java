@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
@@ -32,8 +33,8 @@ public class UserController {
         return userStorage.findById(userId);
     }
 
-    @GetMapping("/{user1}/friends/common/{user2}")
-    public List<User> findMutualFriends(@PathVariable Long user1Id, Long user2Id) {
+    @GetMapping("/{user1Id}/friends/common/{user2Id}")
+    public List<User> findMutualFriends(@PathVariable Long user1Id, @PathVariable Long user2Id) {
         return userService.findMutualFriends(user1Id, user2Id);
     }
 
@@ -52,13 +53,13 @@ public class UserController {
         return userStorage.updateUser(user);
     }
 
-    @PutMapping("/{user1}/friends/{user2}")
-    public void addFriend(@PathVariable Long user1Id, Long user2Id) {
+    @PutMapping("/{user1Id}/friends/{user2Id}")
+    public void addFriend(@PathVariable Long user1Id, @PathVariable Long user2Id) {
         userService.addFriend(user1Id, user2Id);
     }
 
-    @DeleteMapping("/{user1}/friends/{user2}")
-    public void deleteFriend(@PathVariable Long user1Id, Long user2Id) {
+    @DeleteMapping("/{user1Id}/friends/{user2Id}")
+    public void deleteFriend(@PathVariable Long user1Id, @PathVariable Long user2Id) {
         userService.deleteFriend(user1Id, user2Id);
     }
 }

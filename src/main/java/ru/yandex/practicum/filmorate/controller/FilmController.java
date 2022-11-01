@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
@@ -44,22 +43,17 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void addFriend(@PathVariable Long filmId, Long userId) {
+    public void addFriend(@PathVariable Long filmId, @PathVariable Long userId) {
         filmService.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public void deleteFriend(@PathVariable Long filmId, Long userId) {
+    public void deleteFriend(@PathVariable Long filmId, @PathVariable Long userId) {
         filmService.deleteLike(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> findFirstTenByLikes() {
-        return filmService.findfirstNByLikes(10);
-    }
-
-    @GetMapping("/popular/{count}")
-    public List<Film> findFirstNByLikes(@PathVariable Integer count) {
+    public List<Film> findFirstNByLikes(@RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
         return filmService.findfirstNByLikes(count);
     }
 }
