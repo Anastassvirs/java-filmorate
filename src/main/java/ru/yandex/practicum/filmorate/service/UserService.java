@@ -12,13 +12,29 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class UserService {
+public class UserService{
 
     private final UserStorage storage;
 
     @Autowired
     public UserService(UserStorage storage) {
         this.storage = storage;
+    }
+
+    public List<User> findAll() {
+        return storage.findAll();
+    }
+
+    public User createUser(User user) {
+        return storage.createUser(user);
+    }
+
+    public User updateUser(User user) {
+        return storage.updateUser(user);
+    }
+
+    public User findById(Long id) {
+        return storage.findById(id);
     }
 
     public void addFriend(Long userId, Long friendId) {

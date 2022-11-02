@@ -28,15 +28,15 @@ class FilmorateApplicationTests {
 	@BeforeAll
 	static void init() {
 		InMemoryUserStorage storage = new InMemoryUserStorage();
-		userController = new UserController(storage, new UserService(storage));
+		userController = new UserController(new UserService(storage));
 		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
-		filmController = new FilmController(storage2, new FilmService(storage2));
+		filmController = new FilmController(new FilmService(storage2));
 	}
 
 	@Test
 	void userAdd() {
 		InMemoryUserStorage storage = new InMemoryUserStorage();
-		userController = new UserController(storage, new UserService(storage));
+		userController = new UserController(new UserService(storage));
 		User newUser = new User("email@yandex.ru", "cool_user");
 		userController.create(newUser);
 
@@ -48,7 +48,7 @@ class FilmorateApplicationTests {
 	@Test
 	void filmAdd() {
 		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
-		filmController = new FilmController(storage2, new FilmService(storage2));
+		filmController = new FilmController(new FilmService(storage2));
 		Film newFilm = new Film("Крепкий орешек");
 		filmController.create(newFilm);
 
@@ -60,7 +60,7 @@ class FilmorateApplicationTests {
 	@Test
 	void usersAdd() {
 		InMemoryUserStorage storage = new InMemoryUserStorage();
-		userController = new UserController(storage, new UserService(storage));
+		userController = new UserController(new UserService(storage));
 		User newUser = new User("hahahaemail@yandex.ru", "cool_user");
 		userController.create(newUser);
 		User newUser2 = new User("email2@yandex.ru", "not_so_cool_user");
@@ -80,7 +80,7 @@ class FilmorateApplicationTests {
 	@Test
 	void filmsAdd() {
 		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
-		filmController = new FilmController(storage2, new FilmService(storage2));
+		filmController = new FilmController(new FilmService(storage2));
 		Film newFilm = new Film("Зеленый фонарь");
 		filmController.create(newFilm);
 		Film newFilm2 = new Film("Зеленая книга");

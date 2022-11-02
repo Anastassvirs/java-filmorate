@@ -20,6 +20,22 @@ public class FilmService {
         this.storage = filmStorage;
     }
 
+    public List<Film> findAll() {
+        return storage.findAll();
+    }
+
+    public Film findById(Long filmId) {
+        return storage.findById(filmId);
+    }
+
+    public Film createFilm(Film film) {
+        return storage.createFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
+        return storage.updateFilm(film);
+    }
+
     public void addLike(Long filmId, Long userId) {
         if (!Objects.isNull(filmId) && !Objects.isNull(userId) && filmId > 0 && userId > 0) {
             storage.findById(filmId).addLike(userId);
