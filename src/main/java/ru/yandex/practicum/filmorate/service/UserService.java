@@ -41,7 +41,7 @@ public class UserService{
         if (!Objects.isNull(userId) && !Objects.isNull(friendId) && userId > 0 && friendId > 0) {
             storage.findById(userId).addToFriends(friendId);
             storage.findById(friendId).addToFriends(userId);
-            log.debug("Друг добавлен. Текущее количество друзей: {}", storage.findById(userId).getFriends().size());
+            log.debug("Друг добавлен");
         } else {
             throw new NotFoundAnythingException("Номер пользователя не может быть < 0 или null");
         }
@@ -51,7 +51,7 @@ public class UserService{
         if (!Objects.isNull(userId) && !Objects.isNull(friendId) && userId > 0 && friendId > 0) {
             storage.findById(userId).removeFromFriends(friendId);
             storage.findById(friendId).removeFromFriends(userId);
-            log.debug("Друг удален. Текущее количество друзей: {}", storage.findById(userId).getFriends().size());
+            log.debug("Друг удален.");
         } else {
             throw new NotFoundAnythingException("Номер пользователя не может быть < 0 или null");
         }
@@ -63,8 +63,7 @@ public class UserService{
         for (Long friendId : setOfFriends) {
             listOfFriends.add(storage.findById(friendId));
         }
-        log.debug("Выведен список друзей пользователя. Количество друзей: {}", storage.findById(userId).getFriends().size());
-        log.debug("Друзья: {}", storage.findById(userId).getFriends());
+        log.debug("Выведен список друзей пользователя.");
         return listOfFriends;
     }
 
