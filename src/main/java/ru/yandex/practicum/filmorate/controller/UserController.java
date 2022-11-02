@@ -33,9 +33,9 @@ public class UserController {
         return userStorage.findById(userId);
     }
 
-    @GetMapping("/{user1Id}/friends/common/{user2Id}")
-    public List<User> findMutualFriends(@PathVariable Long user1Id, @PathVariable Long user2Id) {
-        return userService.findMutualFriends(user1Id, user2Id);
+    @GetMapping("/{userId}/friends/common/{userSecondId}")
+    public List<User> findMutualFriends(@PathVariable Long userId, @PathVariable Long userSecondId) {
+        return userService.findMutualFriends(userId, userSecondId);
     }
 
     @GetMapping("/{userId}/friends")
@@ -53,13 +53,13 @@ public class UserController {
         return userStorage.updateUser(user);
     }
 
-    @PutMapping("/{user1Id}/friends/{user2Id}")
-    public void addFriend(@PathVariable Long user1Id, @PathVariable Long user2Id) {
-        userService.addFriend(user1Id, user2Id);
+    @PutMapping("/{userId}/friends/{friendId}")
+    public void addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.addFriend(userId, friendId);
     }
 
-    @DeleteMapping("/{user1Id}/friends/{user2Id}")
-    public void deleteFriend(@PathVariable Long user1Id, @PathVariable Long user2Id) {
-        userService.deleteFriend(user1Id, user2Id);
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.deleteFriend(userId, friendId);
     }
 }
