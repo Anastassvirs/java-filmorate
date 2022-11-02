@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import com.google.common.collect.Sets;
 import java.util.*;
 
 @Slf4j
@@ -54,9 +55,8 @@ public class UserService {
     public List<User> findMutualFriends(Long userId, Long userSecondId) {
         List<User> mutualFriends = new ArrayList<>();
         Set<Long> user1Friends = storage.findById(userId).getFriends();
-        Set<Long> intersection = new HashSet<Long>(user1Friends);
         Set<Long> user2Friends = storage.findById(userSecondId).getFriends();
-        intersection.retainAll(user2Friends);
+        Set<Long> intersection = Sets.intersection(user1Friends, user2Friends);
         for (Long id : intersection) {
             mutualFriends.add(storage.findById(id));
         }
