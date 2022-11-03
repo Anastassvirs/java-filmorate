@@ -38,18 +38,17 @@ public class InMemoryUserStorage implements UserStorage{
         if (userAlreadyExist(user)) {
             log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
             throw new AlreadyExistException("Такой пользователь уже зарегистрирован");
-        } else {
-            if (validate(user)) {
-                if (Objects.isNull(user.getName()) || user.getName().equals("")) {
-                    user.setName(user.getLogin());
-                }
-                numberOfUsers++;
-                user.setId(numberOfUsers);
-                log.debug("Добавлен новый пользователь: {}", user);
-                users.put(numberOfUsers, user);
-            }
-            return user;
         }
+        if (validate(user)) {
+            if (Objects.isNull(user.getName()) || user.getName().equals("")) {
+                user.setName(user.getLogin());
+            }
+            numberOfUsers++;
+            user.setId(numberOfUsers);
+            log.debug("Добавлен новый пользователь: {}", user);
+            users.put(numberOfUsers, user);
+        }
+        return user;
     }
 
     @Override

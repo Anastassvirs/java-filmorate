@@ -14,24 +14,18 @@ public class ExceptionFilmorateHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectParameterException(final ValidationException e) {
-        return new ErrorResponse(
-                String.format("Ошибка валидации:", e.getMessage())
-        );
+        return new ErrorResponse(String.format("Ошибка валидации:", e.getMessage()));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFoundException(final NotFoundAnythingException e) {
-        return new ErrorResponse(
-                e.getMessage()
-        );
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
-        return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
-        );
+        return new ErrorResponse("Произошла непредвиденная ошибка.");
     }
 }
