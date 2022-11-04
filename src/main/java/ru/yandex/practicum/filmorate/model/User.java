@@ -6,6 +6,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -19,9 +21,18 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    private Set<Long> friends = new HashSet<>();
 
     public User(String email, String login) {
         this.email = email;
         this.login = login;
+    }
+
+    public void addToFriends(Long userId) {
+        friends.add(userId);
+    }
+
+    public void removeFromFriends(Long userId) {
+        friends.remove(userId);
     }
 }

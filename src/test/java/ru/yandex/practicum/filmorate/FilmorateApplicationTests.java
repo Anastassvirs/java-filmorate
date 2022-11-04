@@ -5,10 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exeptions.AlreadyExistException;
-import ru.yandex.practicum.filmorate.exeptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,13 +27,16 @@ class FilmorateApplicationTests {
 
 	@BeforeAll
 	static void init() {
-		userController = new UserController();
-		filmController = new FilmController();
+		InMemoryUserStorage storage = new InMemoryUserStorage();
+		userController = new UserController(new UserService(storage));
+		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
+		filmController = new FilmController(new FilmService(storage2));
 	}
 
 	@Test
 	void userAdd() {
-		userController = new UserController();
+		InMemoryUserStorage storage = new InMemoryUserStorage();
+		userController = new UserController(new UserService(storage));
 		User newUser = new User("email@yandex.ru", "cool_user");
 		userController.create(newUser);
 
@@ -40,7 +47,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmAdd() {
-		filmController = new FilmController();
+		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
+		filmController = new FilmController(new FilmService(storage2));
 		Film newFilm = new Film("Крепкий орешек");
 		filmController.create(newFilm);
 
@@ -51,7 +59,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void usersAdd() {
-		userController = new UserController();
+		InMemoryUserStorage storage = new InMemoryUserStorage();
+		userController = new UserController(new UserService(storage));
 		User newUser = new User("hahahaemail@yandex.ru", "cool_user");
 		userController.create(newUser);
 		User newUser2 = new User("email2@yandex.ru", "not_so_cool_user");
@@ -70,7 +79,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void filmsAdd() {
-		filmController = new FilmController();
+		InMemoryFilmStorage storage2 = new InMemoryFilmStorage();
+		filmController = new FilmController(new FilmService(storage2));
 		Film newFilm = new Film("Зеленый фонарь");
 		filmController.create(newFilm);
 		Film newFilm2 = new Film("Зеленая книга");
