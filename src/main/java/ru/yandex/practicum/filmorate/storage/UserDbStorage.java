@@ -35,7 +35,7 @@ public class UserDbStorage implements UserStorage{
                     userRows.getString("email"),
                     userRows.getString("login"),
                     userRows.getString("name"),
-                    userRows.getDate("birthday"));
+                    userRows.getDate("birthday").toLocalDate());
 
             log.info("Найден пользователь: {} {}", user.getId(), user.getLogin());
 
