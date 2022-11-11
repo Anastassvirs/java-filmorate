@@ -16,7 +16,6 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-@Qualifier("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage{
     private HashMap<Long, User> users;
     private Long numberOfUsers;

@@ -5,7 +5,6 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +24,12 @@ public class User {
     private Set<Long> friends = new HashSet<>();
 
     public User(String email, String login) {
+        this.email = email;
+        this.login = login;
+    }
+
+    public User(Long id, String email, String login) {
+        this.id = id;
         this.email = email;
         this.login = login;
     }

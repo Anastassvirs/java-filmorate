@@ -1,18 +1,19 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Component
-@Qualifier("dbUserStorage")
+@Primary
 public class UserDbStorage implements UserStorage{
 
     private final JdbcTemplate jdbcTemplate;
@@ -23,7 +24,12 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public List<User> findAll() {
-        return null;
+        return jdbcTemplate.query("select * from user", (rs, rowNum) -> makeOldUser(rs));
+    }
+
+    private User makeOldUser(ResultSet rs) throws SQLException {
+        return new User(rs.getLong("user_id"),
+                rs.getString("email"), rs.getString("login"));
     }
 
     @Override
