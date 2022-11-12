@@ -61,7 +61,7 @@ public class InMemoryUserStorage implements UserStorage{
                 log.debug("Произошла ошибка: Введенного пользователя не существует");
                 throw new NotFoundAnythingException("Такого пользователя не существует");
             }
-            log.debug("Обновлен/добавлен пользователь: {}", user);
+            log.debug("Обновлен пользователь: {}", user);
         }
         return user;
     }

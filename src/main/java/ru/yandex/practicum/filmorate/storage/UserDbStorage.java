@@ -5,16 +5,21 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
 @Primary
-public class UserDbStorage implements UserStorage{
+public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -24,7 +29,7 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public List<User> findAll() {
-        return jdbcTemplate.query("select * from user", (rs, rowNum) -> makeOldUser(rs));
+        return jdbcTemplate.query("SELECT * FROM users", (rs, rowNum) -> makeOldUser(rs));
     }
 
     private User makeOldUser(ResultSet rs) throws SQLException {
@@ -34,7 +39,7 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public User findById(Long id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from user where id = ?", id);
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE id = ?", id);
         if(userRows.next()) {
             User user = new User(
                     userRows.getLong("user_id"),
@@ -48,22 +53,63 @@ public class UserDbStorage implements UserStorage{
             return user;
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
-            return null;
+            throw new NotFoundAnythingException("Искомый пользователь не существует");
         }
     }
 
     @Override
     public User createUser(User user) {
-        return null;
+        if (userAlreadyExist(user)) {
+            log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
+            throw new AlreadyExistException("Такой пользователь уже зарегистрирован");
+        }
+        if (validate(user)) {
+            if (Objects.isNull(user.getName()) || user.getName().equals("")) {
+                user.setName(user.getLogin());
+            }
+            log.debug("Добавлен новый пользователь: {}", user);
+            String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?);";
+            jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+
+        }
+        return user;
+    }
+
+    private boolean userAlreadyExist(User user) {
+        findById(user.getId());
+        return true;
+    }
+
+    private static boolean validate(User user) throws ValidationException {
+        if (Objects.nonNull(user.getLogin()) && user.getLogin().contains(" ")) {
+            log.debug("Произошла ошибка: Поле login не может содержать пробелы");
+            throw new ValidationException("Поле login не может содержать пробелы");
+        } else if (Objects.nonNull(user.getBirthday()) && user.getBirthday().isAfter(LocalDate.now())) {
+            log.debug("Произошла ошибка: Дата рождения не может быть в будущем");
+            throw new ValidationException("Дата рождения не может быть в будущем");
+        }
+        return true;
     }
 
     @Override
     public User updateUser(User user) {
-        return null;
+        if(validate(user)) {
+            if (userAlreadyExist(user)) {
+                String sql = "INSERT INTO users (user_id, email, login, name, birthday) VALUES (?, ?, ?, ?, ?);";
+                jdbcTemplate.update(sql, user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+            } else {
+                log.debug("Произошла ошибка: Введенного пользователя не существует");
+                throw new NotFoundAnythingException("Такого пользователя не существует");
+            }
+            log.debug("Обновлен пользователь: {}", user);
+        }
+        return user;
     }
 
     @Override
     public User deleteUser(User user) {
-        return null;
+        String sql = "DELETE FROM users WHERE user_id = ?";
+        jdbcTemplate.update(sql, user.getId());
+        return user;
     }
 }
