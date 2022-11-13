@@ -29,12 +29,17 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> findAll() {
-        return jdbcTemplate.query("SELECT * FROM users", (rs, rowNum) -> makeOldUser(rs));
+        return jdbcTemplate.query("SELECT * FROM users", (rs, rowNum) -> makeUser(rs));
     }
 
-    private User makeOldUser(ResultSet rs) throws SQLException {
-        return new User(rs.getLong("user_id"),
-                rs.getString("email"), rs.getString("login"));
+    private User makeUser(ResultSet rs) throws SQLException {
+        return User.builder()
+                .id(rs.getLong("id"))
+                .email(rs.getString("email"))
+                .login(rs.getString("login"))
+                .name(rs.getString("name"))
+                .birthday(rs.getDate("birthday").toLocalDate())
+                .build();
     }
 
     @Override
@@ -96,7 +101,12 @@ public class UserDbStorage implements UserStorage {
         if(validate(user)) {
             if (userAlreadyExist(user)) {
                 String sql = "INSERT INTO users (user_id, email, login, name, birthday) VALUES (?, ?, ?, ?, ?);";
-                jdbcTemplate.update(sql, user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+                jdbcTemplate.update(sql,
+                        user.getId(),
+                        user.getEmail(),
+                        user.getLogin(),
+                        user.getName(),
+                        user.getBirthday());
             } else {
                 log.debug("Произошла ошибка: Введенного пользователя не существует");
                 throw new NotFoundAnythingException("Такого пользователя не существует");
