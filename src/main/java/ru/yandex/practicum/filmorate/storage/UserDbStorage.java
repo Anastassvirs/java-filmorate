@@ -1,24 +1,17 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +34,7 @@ public class UserDbStorage implements UserStorage {
 
     private User makeUser(ResultSet rs, int rowNum) throws SQLException {
         return User.builder()
-                .id(rs.getLong("id"))
+                .id(rs.getLong("user_id"))
                 .email(rs.getString("email"))
                 .login(rs.getString("login"))
                 .name(rs.getString("name"))
@@ -53,7 +46,7 @@ public class UserDbStorage implements UserStorage {
     public User findById(Long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         try {
-            log.info("Найден пользователь c id: {}", id);
+            log.info("Ищем пользователя c id: {}", id);
             return jdbcTemplate.queryForObject(sql, this::makeUser, id);
         } catch (EmptyResultDataAccessException e) {
             log.info("Пользователь с идентификатором {} не найден.", id);
@@ -63,34 +56,26 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User saveUser(User user) {
-        if (userAlreadyExist(user)) {
-            log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
-            throw new AlreadyExistException("Такой пользователь уже зарегистрирован");
-        }
+        Long id = (long) -1;
         if (validate(user)) {
             if (Objects.isNull(user.getName()) || user.getName().equals("")) {
                 user.setName(user.getLogin());
             }
-            log.debug("Добавлен новый пользователь: {}", user);
             String sqlQuery = "insert into users (email, login, name, birthday) " +
                     "values (?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
-                PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+                PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 stmt.setString(1, user.getEmail());
                 stmt.setString(2, user.getLogin());
                 stmt.setString(3, user.getName());
                 stmt.setDate(4, Date.valueOf(user.getBirthday()));
                 return stmt;
             }, keyHolder);
-            user.setId(keyHolder.getKey().longValue());
+            log.debug("Добавлен новый пользователь: {}", user);
+            id = keyHolder.getKey().longValue();
         }
-        return findById(user.getId());
-    }
-
-    private boolean userAlreadyExist(User user) {
-        findById(user.getId());
-        return true;
+        return findById(id);
     }
 
     private static boolean validate(User user) throws ValidationException {
@@ -106,19 +91,20 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
+        findById(user.getId());
         if(validate(user)) {
-            if (userAlreadyExist(user)) {
-                String sql = "INSERT INTO users (user_id, email, login, name, birthday) VALUES (?, ?, ?, ?, ?);";
-                jdbcTemplate.update(sql,
-                        user.getId(),
-                        user.getEmail(),
-                        user.getLogin(),
-                        user.getName(),
-                        user.getBirthday());
-            } else {
-                log.debug("Произошла ошибка: Введенного пользователя не существует");
-                throw new NotFoundAnythingException("Такого пользователя не существует");
-            }
+            String sqlQuery = "UPDATE users SET " +
+                    "email = ?," +
+                    "login = ?," +
+                    "name = ?," +
+                    "birthday = ? " +
+                    "WHERE user_id = ?";
+            jdbcTemplate.update(sqlQuery
+                    , user.getEmail()
+                    , user.getLogin()
+                    , user.getName()
+                    , Date.valueOf(user.getBirthday())
+                    , user.getId());
             log.debug("Обновлен пользователь: {}", user);
         }
         return user;
