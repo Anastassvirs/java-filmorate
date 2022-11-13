@@ -7,7 +7,9 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -25,30 +27,21 @@ public class User {
     private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
 
-    public User(String email, String login) {
-        this.email = email;
-        this.login = login;
-    }
-
-    public User(Long id, String email, String login) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-    }
-
-    public User(Long id, String email, String login, String name, LocalDate birthday) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-    }
-
     public void addToFriends(Long userId) {
         friends.add(userId);
     }
 
     public void removeFromFriends(Long userId) {
         friends.remove(userId);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("user_id", id);
+        values.put("email", email);
+        values.put("login", login);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
     }
 }

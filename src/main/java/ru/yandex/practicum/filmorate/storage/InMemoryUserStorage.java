@@ -35,7 +35,7 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User createUser(User user) {
+    public User saveUser(User user) {
         if (userAlreadyExist(user)) {
             log.debug("Произошла ошибка: Введенный пользователь уже зарегистрирован");
             throw new AlreadyExistException("Такой пользователь уже зарегистрирован");

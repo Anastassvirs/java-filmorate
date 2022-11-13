@@ -27,7 +27,7 @@ public class UserService{
     }
 
     public User createUser(User user) {
-        return storage.createUser(user);
+        return storage.saveUser(user);
     }
 
     public User updateUser(User user) {
