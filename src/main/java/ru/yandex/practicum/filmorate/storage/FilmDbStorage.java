@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import java.util.Objects;
 @Component
 @Primary
 public class FilmDbStorage implements FilmStorage{
+
     private final JdbcTemplate jdbcTemplate;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate){
@@ -31,14 +33,14 @@ public class FilmDbStorage implements FilmStorage{
     }
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        Film film = Film.builder()
+        return Film.builder()
                 .id(rs.getLong("film_id"))
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getLong("duration"))
+                .rate(rs.getInt("rate"))
                 .build();
-        return film;
     }
 
     @Override
@@ -57,8 +59,8 @@ public class FilmDbStorage implements FilmStorage{
     public Film saveFilm(Film film) {
         Long id = (long) -1;
         if (validate(film)) {
-            String sqlQuery = "insert into film (name, description, release_date, duration) " +
-                    "values (?, ?, ?, ?)";
+            String sqlQuery = "INSERT INTO film (name, description, release_date, duration, rate, mpa_rate_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
@@ -66,10 +68,21 @@ public class FilmDbStorage implements FilmStorage{
                 stmt.setString(2, film.getDescription());
                 stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
                 stmt.setLong(4, film.getDuration());
+                stmt.setLong(5, film.getRate());
+                stmt.setLong(6, Math.toIntExact(film.getMpa().getId()));
                 return stmt;
             }, keyHolder);
-            log.debug("Добавлен новый фильм: {}", film);
+            log.debug("Добавлен " +
+                    "новый фильм: {}", film);
             id = keyHolder.getKey().longValue();
+
+            if(film.getGenres() != null) {
+                for (Genre genre: film.getGenres()) {
+                    String sql = "INSERT INTO film_genre VALUES(?, ?)";
+                    jdbcTemplate.update(sql, id, genre.getId());
+                    log.debug("Жанры фильма {} обновлены", film.getName());
+                }
+            }
         }
         Film filmre = findById(id);
         return filmre;
@@ -98,13 +111,15 @@ public class FilmDbStorage implements FilmStorage{
                     "name = ?," +
                     "description = ?," +
                     "release_date = ?," +
-                    "duration = ? " +
+                    "duration = ?," +
+                    "rate = ? " +
                     "WHERE film_id = ?";
             jdbcTemplate.update(sqlQuery
                     , film.getName()
                     , film.getDescription()
                     , Date.valueOf(film.getReleaseDate())
                     , film.getDuration()
+                    , film.getRate()
                     , film.getId());
             log.debug("Обновлен фильм: {}", film);
         }

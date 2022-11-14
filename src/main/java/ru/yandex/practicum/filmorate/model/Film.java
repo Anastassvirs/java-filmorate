@@ -9,6 +9,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -23,6 +24,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Long duration;
+    private Integer rate;
+    private MPA mpa;
+    private List<Genre> genres;
     private Set<Long> likes = new HashSet<>();
 
     public void addLike(Long userId) {
