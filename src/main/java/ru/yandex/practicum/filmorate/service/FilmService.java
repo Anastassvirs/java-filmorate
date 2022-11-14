@@ -29,7 +29,7 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
-        return storage.createFilm(film);
+        return storage.saveFilm(film);
     }
 
     public Film updateFilm(Film film) {

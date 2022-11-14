@@ -16,7 +16,6 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-@Qualifier("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage{
 
     private HashMap<Long, Film> films;
@@ -46,7 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public Film saveFilm(Film film) {
         if (filmAlreadyExist(film)) {
             log.debug("Произошла ошибка: Введенный фильм уже зарегистрирован");
             throw new AlreadyExistException("Такой фильм уже зарегистрирован");
