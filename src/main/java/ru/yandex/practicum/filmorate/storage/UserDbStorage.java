@@ -29,7 +29,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> findAll() {
-        return jdbcTemplate.query("SELECT * FROM users", (rs, rowNum) -> makeUser(rs, rowNum));
+        return jdbcTemplate.query("SELECT * FROM users", this::makeUser);
     }
 
     private User makeUser(ResultSet rs, int rowNum) throws SQLException {
@@ -115,5 +115,55 @@ public class UserDbStorage implements UserStorage {
         String sql = "DELETE FROM users WHERE user_id = ?";
         jdbcTemplate.update(sql, user.getId());
         return user;
+    }
+
+    @Override
+    public User addFriend(Long userId, Long friendId) {
+        String sqlQuery = "insert into friendship (friend_id, user_id) " +
+                "values (?, ?)";
+        jdbcTemplate.update(sqlQuery, friendId, userId);
+        sqlQuery = "insert into friendship (friend_id, user_id) " +
+                "values (?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+        log.debug("Добавлен новая дружба между пользователями: {} и {}", userId, friendId);
+        return findById(friendId);
+    }
+
+    @Override
+    public User deleteFriend(Long userId, Long friendId) {
+        String sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(sql, userId, friendId);
+        sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(sql, friendId, userId);
+        return findById(friendId);
+    }
+
+    @Override
+    public List<User> findUserFriends(Long userId) {
+        String sql = "SELECT * " +
+                "FROM users AS u " +
+                "WHERE u.user_id = (" +
+                "SELECT user_id " +
+                "FROM friendship AS f " +
+                "WHERE f.friend_id = ?)";
+        return jdbcTemplate.query(sql, this::makeUser, userId);
+    }
+
+    @Override
+    public List<User> findMutualFriends(Long userId, Long friendId) {
+        String sql = "SELECT * " +
+                "FROM users AS u " +
+                "WHERE u.user_id = (" +
+                "SELECT user_id " +
+                "FROM friendship AS f " +
+                "WHERE f.friend_id = ?)" +
+                "INTERSECT " +
+                "SELECT * " +
+                "FROM users AS u " +
+                "WHERE u.user_id = (" +
+                "SELECT user_id " +
+                "FROM friendship AS f " +
+                "WHERE f.friend_id = ?)";
+        return jdbcTemplate.query(sql, this::makeUser, userId, friendId);
     }
 }
