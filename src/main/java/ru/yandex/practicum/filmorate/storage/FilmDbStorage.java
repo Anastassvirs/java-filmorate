@@ -65,8 +65,8 @@ public class FilmDbStorage implements FilmStorage{
     public Film saveFilm(Film film) {
         Long id = (long) -1;
         if (validate(film)) {
-            String sqlQuery = "INSERT INTO film (name, description, release_date, duration, rate, mpa_rate_id) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+            String sqlQuery = "insert into film (name, description, release_date, duration, rate, mpa_rate_id) " +
+                    "values (?, ?, ?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
@@ -91,6 +91,7 @@ public class FilmDbStorage implements FilmStorage{
             }
         }
         Film filmre = findById(id);
+        System.out.println("filmre = " + filmre);
         return filmre;
     }
 

@@ -26,7 +26,7 @@ public class GenreDbStorage implements GenreStorage{
 
     private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
         return Genre.builder()
-                .id(rs.getLong("mpa_id"))
+                .id(rs.getLong("genre_id"))
                 .name(rs.getString("name"))
                 .build();
     }
@@ -38,10 +38,14 @@ public class GenreDbStorage implements GenreStorage{
 
     @Override
     public List<Genre> findByFilmId(Long id) {
-        return jdbcTemplate.query(
+        List<Genre> returnList = jdbcTemplate.query(
                 "SELECT * FROM genre AS g " +
-                    "RIGHT JOIN film_genre AS fg ON fg.genre_id = g.genre_id" +
-                    "RIGHT JOIN film AS f ON fg.film_id = f.film_id", (rs, rowNum) -> makeGenre(rs, rowNum));
+                        "RIGHT JOIN film_genre AS fg ON fg.genre_id = g.genre_id " +
+                        "RIGHT JOIN film AS f ON fg.film_id = f.film_id", (rs, rowNum) -> makeGenre(rs, rowNum));
+        if (returnList.size() == 1 && returnList.get(0).getId() == 0) {
+            returnList = null;
+        }
+        return returnList;
     }
 
     @Override
