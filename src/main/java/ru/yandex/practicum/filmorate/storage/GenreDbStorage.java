@@ -38,14 +38,16 @@ public class GenreDbStorage implements GenreStorage{
 
     @Override
     public List<Genre> findByFilmId(Long id) {
-        List<Genre> returnList = jdbcTemplate.query(
-                "SELECT * FROM genre AS g " +
-                        "RIGHT JOIN film_genre AS fg ON fg.genre_id = g.genre_id " +
-                        "RIGHT JOIN film AS f ON fg.film_id = f.film_id", (rs, rowNum) -> makeGenre(rs, rowNum));
-        if (returnList.size() == 1 && returnList.get(0).getId() == 0) {
-            returnList = null;
-        }
-        return returnList;
+        String sql = "SELECT * " +
+                "FROM genre AS g " +
+                "WHERE g.genre_id = (" +
+                "SELECT genre_id " +
+                "FROM film_genre AS fg " +
+                "WHERE fg.film_id = (" +
+                "SELECT film_id " +
+                "FROM film " +
+                "WHERE film_id = ?))";
+        return jdbcTemplate.query(sql, this::makeGenre, id);
     }
 
     @Override

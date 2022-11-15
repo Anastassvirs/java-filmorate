@@ -154,16 +154,16 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * " +
                 "FROM users AS u " +
                 "WHERE u.user_id = (" +
-                "SELECT user_id " +
-                "FROM friendship AS f " +
-                "WHERE f.friend_id = ?)" +
+                "   SELECT user_id " +
+                "   FROM friendship AS f " +
+                "   WHERE f.friend_id = ?)" +
                 "INTERSECT " +
                 "SELECT * " +
                 "FROM users AS u " +
                 "WHERE u.user_id = (" +
-                "SELECT user_id " +
-                "FROM friendship AS f " +
-                "WHERE f.friend_id = ?)";
+                "   SELECT user_id " +
+                "   FROM friendship AS f " +
+                "   WHERE f.friend_id = ?)";
         return jdbcTemplate.query(sql, this::makeUser, userId, friendId);
     }
 }
