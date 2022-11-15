@@ -24,10 +24,12 @@ public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
     MPAStorage mpaStorage;
+    GenreStorage genreStorage;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate=jdbcTemplate;
         mpaStorage = new MPADbStorage(jdbcTemplate);
+        genreStorage = new GenreDbStorage(jdbcTemplate);
     }
 
     public List<Film> findAll() {
@@ -43,6 +45,7 @@ public class FilmDbStorage implements FilmStorage{
                 .duration(rs.getLong("duration"))
                 .rate(rs.getInt("rate"))
                 .mpa(mpaStorage.findById(rs.getLong("mpa_rate_id")))
+                .genres(genreStorage.findByFilmId(rs.getLong("film_id")))
                 .build();
     }
 
@@ -126,6 +129,13 @@ public class FilmDbStorage implements FilmStorage{
                     , film.getRate()
                     , film.getMpa().getId()
                     , film.getId());
+            if(film.getGenres() != null) {
+                for (Genre genre: film.getGenres()) {
+                    String sql = "INSERT INTO film_genre VALUES(?, ?)";
+                    jdbcTemplate.update(sql, film.getId(), genre.getId());
+                    log.debug("Жанры фильма {} обновлены", film.getName());
+                }
+            }
             log.debug("Обновлен фильм: {}", film);
         }
         return findById(film.getId());

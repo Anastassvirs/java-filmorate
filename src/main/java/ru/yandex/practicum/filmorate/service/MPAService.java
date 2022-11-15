@@ -25,7 +25,7 @@ public class MPAService {
     }
 
     public MPA createMPA(MPA mpa) {
-        return storage.saveMpa(mpa);
+        return storage.saveMPA(mpa);
     }
 
     public MPA updateMPA(MPA mpa) {

@@ -23,11 +23,10 @@ public class MPADbStorage implements MPAStorage{
     }
 
     private MPA makeMPA(ResultSet rs, int rowNum) throws SQLException {
-        MPA mpa = MPA.builder()
+        return MPA.builder()
                 .id(rs.getLong("mpa_id"))
                 .name(rs.getString("name"))
                 .build();
-        return mpa;
     }
 
     @Override
@@ -48,7 +47,7 @@ public class MPADbStorage implements MPAStorage{
     }
 
     @Override
-    public MPA saveMpa(MPA mpa) {
+    public MPA saveMPA(MPA mpa) {
         Long id = (long) -1;
         String sqlQuery = "insert into mpa_values (name) " +
                 "values (?)";

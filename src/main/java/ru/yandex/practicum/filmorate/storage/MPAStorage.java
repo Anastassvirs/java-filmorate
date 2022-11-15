@@ -9,7 +9,7 @@ public interface MPAStorage {
 
     MPA findById(Long id);
 
-    MPA saveMpa(MPA mpa);
+    MPA saveMPA(MPA mpa);
 
     MPA updateMPA(MPA mpa);
 
