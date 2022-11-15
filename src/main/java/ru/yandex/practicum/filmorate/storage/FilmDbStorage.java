@@ -23,9 +23,11 @@ import java.util.Objects;
 public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
+    MPAStorage mpaStorage;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate=jdbcTemplate;
+        mpaStorage = new MPADbStorage(jdbcTemplate);
     }
 
     public List<Film> findAll() {
@@ -40,6 +42,7 @@ public class FilmDbStorage implements FilmStorage{
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getLong("duration"))
                 .rate(rs.getInt("rate"))
+                .mpa(mpaStorage.findById(rs.getLong("mpa_rate_id")))
                 .build();
     }
 
@@ -69,7 +72,7 @@ public class FilmDbStorage implements FilmStorage{
                 stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
                 stmt.setLong(4, film.getDuration());
                 stmt.setLong(5, film.getRate());
-                stmt.setLong(6, Math.toIntExact(film.getMpa().getId()));
+                stmt.setLong(6, film.getMpa().getId());
                 return stmt;
             }, keyHolder);
             log.debug("Добавлен " +
@@ -112,7 +115,8 @@ public class FilmDbStorage implements FilmStorage{
                     "description = ?," +
                     "release_date = ?," +
                     "duration = ?," +
-                    "rate = ? " +
+                    "rate = ?," +
+                    "mpa_rate_id = ? " +
                     "WHERE film_id = ?";
             jdbcTemplate.update(sqlQuery
                     , film.getName()
@@ -120,6 +124,7 @@ public class FilmDbStorage implements FilmStorage{
                     , Date.valueOf(film.getReleaseDate())
                     , film.getDuration()
                     , film.getRate()
+                    , film.getMpa().getId()
                     , film.getId());
             log.debug("Обновлен фильм: {}", film);
         }
