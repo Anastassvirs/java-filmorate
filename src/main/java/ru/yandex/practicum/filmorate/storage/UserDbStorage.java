@@ -61,8 +61,8 @@ public class UserDbStorage implements UserStorage {
             if (Objects.isNull(user.getName()) || user.getName().equals("")) {
                 user.setName(user.getLogin());
             }
-            String sqlQuery = "insert into users (email, login, name, birthday) " +
-                    "values (?, ?, ?, ?)";
+            String sqlQuery = "INSERT INTO users (email, login, name, birthday) " +
+                    "VALUES (?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
@@ -119,12 +119,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addFriend(Long userId, Long friendId) {
-        String sqlQuery = "insert into friendship (friend_id, user_id) " +
-                "values (?, ?)";
+        String sqlQuery = "INSERT INTO friendship (friend_id, user_id) " +
+                "VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, friendId, userId);
-        sqlQuery = "insert into friendship (friend_id, user_id) " +
-                "values (?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
         log.debug("Добавлен новая дружба между пользователями: {} и {}", userId, friendId);
         return findById(friendId);
     }
@@ -133,8 +130,6 @@ public class UserDbStorage implements UserStorage {
     public User deleteFriend(Long userId, Long friendId) {
         String sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, userId, friendId);
-        sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql, friendId, userId);
         return findById(friendId);
     }
 

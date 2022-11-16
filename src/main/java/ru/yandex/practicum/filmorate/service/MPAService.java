@@ -33,8 +33,7 @@ public class MPAService {
     }
 
     public MPA deleteMPA(MPA mpa) {
-        return storage.deleteMPA(mpa);
-    }
+        return storage.deleteMPA(mpa);    }
 
     public MPA findById(Long id) {
         return storage.findById(id);
