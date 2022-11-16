@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
@@ -13,6 +14,7 @@ import java.util.*;
 
 @Slf4j
 @Component
+@Qualifier("memoryUserStorage")
 public class InMemoryUserStorage implements UserStorage{
     private HashMap<Long, User> users;
     private Long numberOfUsers;
@@ -106,6 +108,23 @@ public class InMemoryUserStorage implements UserStorage{
             mutualFriends.add(findById(id));
         }
         return mutualFriends;
+    }
+
+    @Override
+    public void addLike(Long filmId, Long userId) {
+        findById(userId).addToFriends(filmId);
+    }
+
+    @Override
+    public void deleteLike(Long filmId, Long userId) {
+        findById(userId).removeFromFriends(filmId);
+    }
+
+    @Override
+    public List<Long> findLikesOfFilm(Long filmId) {
+        List<Long> list = new ArrayList<Long>();
+        list.addAll(findById(filmId).getFriends());
+        return list;
     }
 
     @Override

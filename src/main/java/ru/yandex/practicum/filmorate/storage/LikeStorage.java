@@ -8,11 +8,9 @@ public interface LikeStorage {
 
     List<Like> findAll();
 
-    List<Like> findLikesOfFilm(Long filmId);
-
-    Like findByUserId(Long userId);
+    List<Long> findLikesOfFilm(Long filmId);
 
     void saveLike(Long filmId, Long userId);
 
-    void deleteLike(Long userId);
+    void deleteLike(Long filmId, Long userId);
 }

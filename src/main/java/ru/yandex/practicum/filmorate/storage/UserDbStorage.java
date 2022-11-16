@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
@@ -20,13 +22,15 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@Primary
+@Qualifier("daoUserStorage")
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final LikeStorage likeStorage;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate=jdbcTemplate;
+        this.likeStorage = new LikeDbStorage(jdbcTemplate);
     }
 
     @Override
@@ -196,5 +200,17 @@ public class UserDbStorage implements UserStorage {
                 " INTERSECT " +
                 sql2;
         return jdbcTemplate.query(sql, this::makeUser, userId, friendId);
+    }
+
+    public void addLike(Long filmId, Long userId) {
+        likeStorage.saveLike(filmId, userId);
+    }
+
+    public void deleteLike(Long filmId, Long userId) {
+        likeStorage.deleteLike(filmId, userId);
+    }
+
+    public List<Long> findLikesOfFilm(Long filmId) {
+        return likeStorage.findLikesOfFilm(filmId);
     }
 }

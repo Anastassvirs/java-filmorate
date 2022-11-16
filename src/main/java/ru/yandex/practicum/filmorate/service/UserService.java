@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
+import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -14,7 +16,7 @@ public class UserService{
     private final UserStorage storage;
 
     @Autowired
-    public UserService(UserStorage storage) {
+    public UserService(@Qualifier("daoUserStorage") UserStorage storage) {
         this.storage = storage;
     }
 
@@ -56,5 +58,17 @@ public class UserService{
 
     public List<User> findMutualFriends(Long userId, Long userSecondId) {
         return storage.findMutualFriends(userId, userSecondId);
+    }
+
+    public void addLike(Long filmId, Long userId) {
+        storage.addLike(filmId, userId);
+    }
+
+    public void deleteLike(Long filmId, Long userId) {
+        storage.deleteLike(filmId, userId);
+    }
+
+    List<Long> findLikesOfFilm(Long filmId) {
+        return storage.findLikesOfFilm(filmId);
     }
 }

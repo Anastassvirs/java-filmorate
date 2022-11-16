@@ -7,13 +7,13 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @Component
+@Qualifier("memoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage{
 
     private HashMap<Long, Film> films;

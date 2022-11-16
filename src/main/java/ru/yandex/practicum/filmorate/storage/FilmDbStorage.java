@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,7 +22,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@Primary
+@Qualifier("daoFilmStorage")
 public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;

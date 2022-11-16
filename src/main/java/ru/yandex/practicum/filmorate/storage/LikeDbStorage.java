@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Like;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -34,22 +35,14 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     @Override
-    public List<Like> findLikesOfFilm(Long filmId) {
+    public List<Long> findLikesOfFilm(Long filmId) {
         String query = "SELECT * FROM likes WHERE film_id = ?;";
-        return jdbcTemplate.query(query, this::makeLike, filmId);
-    }
-
-    //TODO: будет не одна запись
-    @Override
-    public Like findByUserId(Long userId) {
-        String sql = "SELECT * FROM likes WHERE user_id = ?";
-        try {
-            log.info("Ищем лайк c user_id: {}", userId);
-            return jdbcTemplate.queryForObject(sql, this::makeLike, userId);
-        } catch (EmptyResultDataAccessException e) {
-            log.info("Лайк с идентификатором {} не найден.", userId);
-            throw new NotFoundAnythingException("Искомый лайк не существует");
+        List<Like> likelist = jdbcTemplate.query(query, this::makeLike, filmId);
+        List<Long> list = new ArrayList<Long>();
+        for (Like like: likelist) {
+            list.add(like.getUser_id());
         }
+        return list;
     }
 
     @Override
@@ -61,8 +54,8 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     @Override
-    public void deleteLike(Long userId) {
-        String sql = "DELETE FROM likes WHERE user_id = ?";
-        jdbcTemplate.update(sql, userId);
+    public void deleteLike(Long filmId, Long userId) {
+        String sql = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
+        jdbcTemplate.update(sql, userId, filmId);
     }
 }
