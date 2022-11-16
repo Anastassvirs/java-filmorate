@@ -80,8 +80,9 @@ public class UserDbStorage implements UserStorage {
                 for (Long friendId: user.getFriends()) {
                     String sql = "MERGE INTO friendship (user_id, friend_id) VALUES(?, ?)";
                     jdbcTemplate.update(sql, id, friendId);
+                    /*
                     sql = "MERGE INTO friendship (user_id, friend_id) VALUES(?, ?)";
-                    jdbcTemplate.update(sql, friendId, id);
+                    jdbcTemplate.update(sql, friendId, id);*/
                     log.debug("Друзья пользователя {} обновлены", user.getName());
                 }
             }
@@ -130,15 +131,6 @@ public class UserDbStorage implements UserStorage {
                     }
                     log.debug("Друзья пользователя {} обновлены", user.getLogin());
                 }
-                sql = "DELETE FROM friendship WHERE friend_id = ?";
-                jdbcTemplate.update(sql, user.getId());
-                if(user.getFriends().size() != 0) {
-                    for (Long friendId : s) {
-                        sql = "INSERT INTO friendship (user_id, friend_id) VALUES(?, ?)";
-                        jdbcTemplate.update(sql, friendId, user.getId());
-                    }
-                    log.debug("Друзья пользователя {} обновлены", user.getLogin());
-                }
             }
             log.debug("Обновлен пользователь: {}", user);
         }
@@ -151,8 +143,6 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sql, user.getId());
         sql = "DELETE FROM friendship WHERE user_id = ?";
         jdbcTemplate.update(sql, user.getId());
-        sql = "DELETE FROM friendship WHERE friend_id = ?";
-        jdbcTemplate.update(sql, user.getId());
         return user;
     }
 
@@ -161,10 +151,6 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "INSERT INTO friendship (user_id, friend_id) " +
                 "VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, userId, friendId);
-        /*sqlQuery = "INSERT INTO friendship (user_id, friend_id) " +
-                "VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery, friendId, userId);*/ // Почему не подразумевается,
-                                                            // что пользователь появляется в друзьях у друга?
         log.debug("Добавлен новая дружба между пользователями: {} и {}", userId, friendId);
         return findById(friendId);
     }
@@ -173,8 +159,6 @@ public class UserDbStorage implements UserStorage {
     public User deleteFriend(Long userId, Long friendId) {
         String sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, userId, friendId);
-        sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql, friendId, userId);
         return findById(friendId);
     }
 

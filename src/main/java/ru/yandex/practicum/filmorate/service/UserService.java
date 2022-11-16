@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import com.google.common.collect.Sets;
 import java.util.*;
 
 @Service
@@ -57,6 +55,6 @@ public class UserService{
     }
 
     public List<User> findMutualFriends(Long userId, Long userSecondId) {
-        return storage.findMutualFriends(userId);
+        return storage.findMutualFriends(userId, userSecondId);
     }
 }

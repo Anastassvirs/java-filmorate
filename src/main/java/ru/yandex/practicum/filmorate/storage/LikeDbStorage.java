@@ -39,6 +39,7 @@ public class LikeDbStorage implements LikeStorage {
         return jdbcTemplate.query(query, this::makeLike, filmId);
     }
 
+    //TODO: будет не одна запись
     @Override
     public Like findByUserId(Long userId) {
         String sql = "SELECT * FROM likes WHERE user_id = ?";
