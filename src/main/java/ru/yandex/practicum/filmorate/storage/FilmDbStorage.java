@@ -14,8 +14,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -43,7 +45,7 @@ public class FilmDbStorage implements FilmStorage{
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getLong("duration"))
-                .rate(rs.getInt("rate"))
+                .rate(rs.getLong("rate"))
                 .mpa(mpaStorage.findById(rs.getLong("mpa_rate_id")))
                 .genres(genreStorage.findByFilmId(rs.getLong("film_id")))
                 .build();
@@ -91,7 +93,6 @@ public class FilmDbStorage implements FilmStorage{
             }
         }
         Film filmre = findById(id);
-        System.out.println("filmre = " + filmre);
         return filmre;
     }
 
@@ -130,10 +131,16 @@ public class FilmDbStorage implements FilmStorage{
                     , film.getRate()
                     , film.getMpa().getId()
                     , film.getId());
+
             if(film.getGenres() != null) {
-                for (Genre genre: film.getGenres()) {
-                    String sql = "INSERT INTO film_genre VALUES(?, ?)";
-                    jdbcTemplate.update(sql, film.getId(), genre.getId());
+                Set<Genre> s = new LinkedHashSet<>(film.getGenres());
+                String sql = "DELETE FROM film_genre WHERE film_id = ?";
+                jdbcTemplate.update(sql, film.getId());
+                if(film.getGenres().size() != 0) {
+                    for (Genre genre : s) {
+                        sql = "MERGE INTO film_genre (film_id, genre_id) VALUES(?, ?)";
+                        jdbcTemplate.update(sql, film.getId(), genre.getId());
+                    }
                     log.debug("Жанры фильма {} обновлены", film.getName());
                 }
             }

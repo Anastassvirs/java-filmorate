@@ -9,12 +9,15 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -72,6 +75,17 @@ public class UserDbStorage implements UserStorage {
                 stmt.setDate(4, Date.valueOf(user.getBirthday()));
                 return stmt;
             }, keyHolder);
+
+            if(user.getFriends() != null) {
+                for (Long friendId: user.getFriends()) {
+                    String sql = "MERGE INTO friendship (user_id, friend_id) VALUES(?, ?)";
+                    jdbcTemplate.update(sql, id, friendId);
+                    sql = "MERGE INTO friendship (user_id, friend_id) VALUES(?, ?)";
+                    jdbcTemplate.update(sql, friendId, id);
+                    log.debug("Друзья пользователя {} обновлены", user.getName());
+                }
+            }
+
             log.debug("Добавлен новый пользователь: {}", user);
             id = keyHolder.getKey().longValue();
         }
@@ -105,6 +119,27 @@ public class UserDbStorage implements UserStorage {
                     , user.getName()
                     , Date.valueOf(user.getBirthday())
                     , user.getId());
+            if(user.getFriends() != null) {
+                Set<Long> s = new LinkedHashSet<>(user.getFriends());
+                String sql = "DELETE FROM friendship WHERE user_id = ?";
+                jdbcTemplate.update(sql, user.getId());
+                if(user.getFriends().size() != 0) {
+                    for (Long friendId : s) {
+                        sql = "INSERT INTO friendship (user_id, friend_id) VALUES(?, ?)";
+                        jdbcTemplate.update(sql, user.getId(), friendId);
+                    }
+                    log.debug("Друзья пользователя {} обновлены", user.getLogin());
+                }
+                sql = "DELETE FROM friendship WHERE friend_id = ?";
+                jdbcTemplate.update(sql, user.getId());
+                if(user.getFriends().size() != 0) {
+                    for (Long friendId : s) {
+                        sql = "INSERT INTO friendship (user_id, friend_id) VALUES(?, ?)";
+                        jdbcTemplate.update(sql, friendId, user.getId());
+                    }
+                    log.debug("Друзья пользователя {} обновлены", user.getLogin());
+                }
+            }
             log.debug("Обновлен пользователь: {}", user);
         }
         return user;
@@ -114,14 +149,22 @@ public class UserDbStorage implements UserStorage {
     public User deleteUser(User user) {
         String sql = "DELETE FROM users WHERE user_id = ?";
         jdbcTemplate.update(sql, user.getId());
+        sql = "DELETE FROM friendship WHERE user_id = ?";
+        jdbcTemplate.update(sql, user.getId());
+        sql = "DELETE FROM friendship WHERE friend_id = ?";
+        jdbcTemplate.update(sql, user.getId());
         return user;
     }
 
     @Override
     public User addFriend(Long userId, Long friendId) {
-        String sqlQuery = "INSERT INTO friendship (friend_id, user_id) " +
+        String sqlQuery = "INSERT INTO friendship (user_id, friend_id) " +
                 "VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery, friendId, userId);
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+        /*sqlQuery = "INSERT INTO friendship (user_id, friend_id) " +
+                "VALUES (?, ?)";
+        jdbcTemplate.update(sqlQuery, friendId, userId);*/ // Почему не подразумевается,
+                                                            // что пользователь появляется в друзьях у друга?
         log.debug("Добавлен новая дружба между пользователями: {} и {}", userId, friendId);
         return findById(friendId);
     }
@@ -130,35 +173,48 @@ public class UserDbStorage implements UserStorage {
     public User deleteFriend(Long userId, Long friendId) {
         String sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, userId, friendId);
+        sql = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(sql, friendId, userId);
         return findById(friendId);
     }
 
     @Override
     public List<User> findUserFriends(Long userId) {
-        String sql = "SELECT * " +
-                "FROM users AS u " +
-                "WHERE u.user_id = (" +
-                "SELECT user_id " +
-                "FROM friendship AS f " +
-                "WHERE f.friend_id = ?)";
+        String sql = "SELECT u.user_id," +
+              "       u.email," +
+              "       u.login," +
+              "       u.name," +
+              "       u.birthday " +
+              "FROM users AS u," +
+              "     friendship AS f " +
+              "WHERE f.friend_id = u.user_id " +
+                "AND f.user_id = ?";
         return jdbcTemplate.query(sql, this::makeUser, userId);
     }
 
     @Override
     public List<User> findMutualFriends(Long userId, Long friendId) {
-        String sql = "SELECT * " +
-                "FROM users AS u " +
-                "WHERE u.user_id = (" +
-                "   SELECT user_id " +
-                "   FROM friendship AS f " +
-                "   WHERE f.friend_id = ?)" +
-                "INTERSECT " +
-                "SELECT * " +
-                "FROM users AS u " +
-                "WHERE u.user_id = (" +
-                "   SELECT user_id " +
-                "   FROM friendship AS f " +
-                "   WHERE f.friend_id = ?)";
+        String sql1 = "SELECT u.user_id," +
+                "       u.email," +
+                "       u.login," +
+                "       u.name," +
+                "       u.birthday " +
+                "FROM users AS u," +
+                "     friendship AS f " +
+                "WHERE f.friend_id = u.user_id " +
+                "AND f.user_id = ?";
+        String sql2 = "SELECT u.user_id," +
+                "       u.email," +
+                "       u.login," +
+                "       u.name," +
+                "       u.birthday " +
+                "FROM users AS u," +
+                "     friendship AS f " +
+                "WHERE f.friend_id = u.user_id " +
+                "AND f.user_id = ?";
+        String sql = sql1 +
+                " INTERSECT " +
+                sql2;
         return jdbcTemplate.query(sql, this::makeUser, userId, friendId);
     }
 }

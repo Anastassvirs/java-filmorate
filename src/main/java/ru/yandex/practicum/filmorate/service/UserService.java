@@ -56,7 +56,7 @@ public class UserService{
         return storage.findUserFriends(userId);
     }
 
-    public List<User> findMutualFriends(Long userId, Long friendId) {
-        return storage.findMutualFriends(userId, friendId);
+    public List<User> findMutualFriends(Long userId, Long userSecondId) {
+        return storage.findMutualFriends(userId);
     }
 }
