@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
@@ -80,9 +79,6 @@ public class UserDbStorage implements UserStorage {
                 for (Long friendId: user.getFriends()) {
                     String sql = "MERGE INTO friendship (user_id, friend_id) VALUES(?, ?)";
                     jdbcTemplate.update(sql, id, friendId);
-                    /*
-                    sql = "MERGE INTO friendship (user_id, friend_id) VALUES(?, ?)";
-                    jdbcTemplate.update(sql, friendId, id);*/
                     log.debug("Друзья пользователя {} обновлены", user.getName());
                 }
             }
