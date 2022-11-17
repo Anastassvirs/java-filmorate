@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.model.Like;
 
 import java.sql.ResultSet;
@@ -24,8 +22,8 @@ public class LikeDbStorage implements LikeStorage {
 
     private Like makeLike (ResultSet rs, int rowNum) throws SQLException {
         return Like.builder()
-                .film_id(rs.getLong("film_id"))
-                .user_id(rs.getLong("user_id"))
+                .filmId(rs.getLong("film_id"))
+                .userId(rs.getLong("user_id"))
                 .build();
     }
 
@@ -40,7 +38,7 @@ public class LikeDbStorage implements LikeStorage {
         List<Like> likelist = jdbcTemplate.query(query, this::makeLike, filmId);
         List<Long> list = new ArrayList<Long>();
         for (Like like: likelist) {
-            list.add(like.getUser_id());
+            list.add(like.getUserId());
         }
         return list;
     }

@@ -65,7 +65,6 @@ public class FilmDbStorage implements FilmStorage{
 
     @Override
     public Film saveFilm(Film film) {
-        Long id = (long) -1;
         if (validate(film)) {
             String sqlQuery = "INSERT INTO film (name, description, release_date, duration, rate, mpa_rate_id) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
@@ -80,9 +79,9 @@ public class FilmDbStorage implements FilmStorage{
                 stmt.setLong(6, film.getMpa().getId());
                 return stmt;
             }, keyHolder);
-            log.debug("Добавлен " +
-                    "новый фильм: {}", film);
-            id = keyHolder.getKey().longValue();
+            log.debug("Добавлен новый фильм: {}", film);
+
+            Long id = keyHolder.getKey().longValue();
 
             if(film.getGenres() != null) {
                 for (Genre genre: film.getGenres()) {
@@ -91,9 +90,10 @@ public class FilmDbStorage implements FilmStorage{
                     log.debug("Жанры фильма {} обновлены", film.getName());
                 }
             }
+
+            return findById(id);
         }
-        Film filmre = findById(id);
-        return filmre;
+        return null;
     }
 
     private boolean validate(Film film) {
