@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -26,12 +25,12 @@ import java.util.Set;
 public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
-    MPAStorage mpaStorage;
+    MpaStorage mpaStorage;
     GenreStorage genreStorage;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate=jdbcTemplate;
-        mpaStorage = new MPADbStorage(jdbcTemplate);
+        mpaStorage = new MpaDbStorage(jdbcTemplate);
         genreStorage = new GenreDbStorage(jdbcTemplate);
     }
 

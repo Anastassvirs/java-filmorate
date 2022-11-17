@@ -3,39 +3,38 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.MPAStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.util.List;
 
 @Slf4j
 @Service
-public class MPAService {
+public class MpaService {
 
-    private final MPAStorage storage;
+    private final MpaStorage storage;
 
     @Autowired
-    public MPAService(MPAStorage storage) {
+    public MpaService(MpaStorage storage) {
         this.storage = storage;
     }
 
-    public List<MPA> findAll() {
+    public List<Mpa> findAll() {
         return storage.findAll();
     }
 
-    public MPA createMPA(MPA mpa) {
+    public Mpa createMPA(Mpa mpa) {
         return storage.saveMPA(mpa);
     }
 
-    public MPA updateMPA(MPA mpa) {
+    public Mpa updateMPA(Mpa mpa) {
         return storage.updateMPA(mpa);
     }
 
-    public MPA deleteMPA(MPA mpa) {
+    public Mpa deleteMPA(Mpa mpa) {
         return storage.deleteMPA(mpa);    }
 
-    public MPA findById(Long id) {
+    public Mpa findById(Long id) {
         return storage.findById(id);
     }
 

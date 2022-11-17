@@ -8,12 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.GenreController;
-import ru.yandex.practicum.filmorate.controller.MPAController;
+import ru.yandex.practicum.filmorate.controller.MpaController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
 
@@ -28,7 +28,7 @@ public class FilmorateApplicationTests {
 
 	private final UserController userController;
 	private final FilmController filmController;
-	private final MPAController mpaController;
+	private final MpaController mpaController;
 	private final GenreController genreController;
 
 	@Test
@@ -87,16 +87,16 @@ public class FilmorateApplicationTests {
 		assertThat(film).hasFieldOrPropertyWithValue("releaseDate",
 				LocalDate.of(2001, 1, 1));
 		assertThat(film).hasFieldOrPropertyWithValue("rate", (long) 5);
-		MPA mpa = mpaController.findMPA((long) 1);
+		Mpa mpa = mpaController.findMPA((long) 1);
 		assertThat(film).hasFieldOrPropertyWithValue("mpa", mpa);
 	}
 
 	@Test
 	@Sql(scripts = "/testsData.sql")
 	public void getMPAById() {
-		MPA mpa2 = mpaController.findMPA((long) 2);
-		MPA mpa3 = mpaController.findMPA((long) 3);
-		MPA mpa6 = mpaController.findMPA((long) 5);
+		Mpa mpa2 = mpaController.findMPA((long) 2);
+		Mpa mpa3 = mpaController.findMPA((long) 3);
+		Mpa mpa6 = mpaController.findMPA((long) 5);
 		assertThat(mpa2).hasFieldOrPropertyWithValue("id", (long) 2);
 		assertThat(mpa2).hasFieldOrPropertyWithValue("name", "PG");
 		assertThat(mpa3).hasFieldOrPropertyWithValue("id", (long) 3);
