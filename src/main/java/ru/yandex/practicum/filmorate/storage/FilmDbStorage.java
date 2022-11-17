@@ -25,12 +25,12 @@ import java.util.Set;
 public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
-    MpaStorage mpaStorage;
+    MPAStorage mpaStorage;
     GenreStorage genreStorage;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate=jdbcTemplate;
-        mpaStorage = new MpaDbStorage(jdbcTemplate);
+        mpaStorage = new MPADbStorage(jdbcTemplate);
         genreStorage = new GenreDbStorage(jdbcTemplate);
     }
 

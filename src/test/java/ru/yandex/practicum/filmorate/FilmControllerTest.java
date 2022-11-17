@@ -7,9 +7,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.MpaController;
+import ru.yandex.practicum.filmorate.controller.MPAController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
 
@@ -21,7 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class FilmControllerTest {
 
     private final FilmController filmController;
-    private final MpaController mpaController;
+    private final MPAController mpaController;
 
     @Test
     @Sql(scripts = "/testsData.sql")
@@ -47,7 +47,7 @@ public class FilmControllerTest {
         assertThat(film).hasFieldOrPropertyWithValue("releaseDate",
                 LocalDate.of(2001, 1, 1));
         assertThat(film).hasFieldOrPropertyWithValue("rate", (long) 5);
-        Mpa mpa = mpaController.findMPA((long) 1);
+        MPA mpa = mpaController.findMPA((long) 1);
         assertThat(film).hasFieldOrPropertyWithValue("mpa", mpa);
     }
 }

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.controller.MpaController;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.controller.MPAController;
+import ru.yandex.practicum.filmorate.model.MPA;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -16,12 +16,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class MpaControllerTest {
 
-    private final MpaController mpaController;
+    private final MPAController mpaController;
 
     @Test
     @Sql(scripts = "/testsData.sql")
     public void getMpaById() {
-        Mpa mpa2 = mpaController.findMPA((long) 2);
+        MPA mpa2 = mpaController.findMPA((long) 2);
         assertThat(mpa2).hasFieldOrPropertyWithValue("id", (long) 2);
         assertThat(mpa2).hasFieldOrPropertyWithValue("name", "PG");
     }
@@ -29,11 +29,11 @@ public class MpaControllerTest {
     @Test
     @Sql(scripts = "/testsData.sql")
     public void getAllMpa() {
-        Mpa mpa1 = mpaController.findMPA((long) 1);
-        Mpa mpa2 = mpaController.findMPA((long) 2);
-        Mpa mpa3 = mpaController.findMPA((long) 3);
-        Mpa mpa4 = mpaController.findMPA((long) 4);
-        Mpa mpa5 = mpaController.findMPA((long) 5);
+        MPA mpa1 = mpaController.findMPA((long) 1);
+        MPA mpa2 = mpaController.findMPA((long) 2);
+        MPA mpa3 = mpaController.findMPA((long) 3);
+        MPA mpa4 = mpaController.findMPA((long) 4);
+        MPA mpa5 = mpaController.findMPA((long) 5);
         assertThat(mpa1).hasFieldOrPropertyWithValue("id", (long) 1);
         assertThat(mpa1).hasFieldOrPropertyWithValue("name", "G");
         assertThat(mpa2).hasFieldOrPropertyWithValue("id", (long) 2);
