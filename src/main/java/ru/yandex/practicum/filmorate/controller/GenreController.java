@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
