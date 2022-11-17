@@ -27,18 +27,4 @@ public class MpaController {
         return mpaService.findById(mpaId);
     }
 
-    @PostMapping
-    public Mpa create(@Valid @RequestBody Mpa mpa) {
-        return mpaService.createMPA(mpa);
-    }
-
-    @PutMapping
-    public Mpa update(@Valid @RequestBody Mpa mpa) {
-        return mpaService.updateMPA(mpa);
-    }
-
-    @DeleteMapping
-    public Mpa delete(@Valid @RequestBody Mpa mpa) {
-        return mpaService.deleteMPA(mpa);
-    }
 }

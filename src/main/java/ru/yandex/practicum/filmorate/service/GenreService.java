@@ -25,18 +25,6 @@ public class GenreService {
         return storage.findByFilmId(id);
     }
 
-    public Genre createGenre(Genre genre) {
-        return storage.saveGenre(genre);
-    }
-
-    public Genre updateGenre(Genre genre) {
-        return storage.updateGenre(genre);
-    }
-
-    public Genre deleteGenre(Genre genre) {
-        return storage.deleteGenre(genre);
-    }
-
     public Genre findById(Long id) {
         return storage.findById(id);
     }

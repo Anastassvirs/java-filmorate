@@ -58,40 +58,4 @@ public class GenreDbStorage implements GenreStorage{
             throw new NotFoundAnythingException("Искомый жанр не существует");
         }
     }
-
-    @Override
-    public Genre saveGenre(Genre genre) {
-        Long id = (long) -1;
-        String sqlQuery = "insert into genre (name) " +
-                "values (?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, genre.getName());
-            return stmt;
-        }, keyHolder);
-        log.debug("Добавлен новый жанр: {}", genre);
-        id = keyHolder.getKey().longValue();
-        return findById(id);
-    }
-
-    @Override
-    public Genre updateGenre(Genre genre) {
-        findById(genre.getId());
-        String sqlQuery = "UPDATE genre SET " +
-                "name = ? " +
-                "WHERE genre_id = ?";
-        jdbcTemplate.update(sqlQuery
-                , genre.getName()
-                , genre.getId());
-        log.debug("Обновлен жанр: {}", genre);
-        return genre;
-    }
-
-    @Override
-    public Genre deleteGenre(Genre genre) {
-        String sql = "DELETE FROM genre WHERE genre_id = ?";
-        jdbcTemplate.update(sql, genre.getId());
-        return genre;
-    }
 }

@@ -32,13 +32,4 @@ public class GenreController {
         return genreService.findById(genreId);
     }
 
-    @PostMapping
-    public Genre create(@Valid @RequestBody Genre genre) {
-        return genreService.createGenre(genre);
-    }
-
-    @PutMapping
-    public Genre update(@Valid @RequestBody Genre genre) {
-        return genreService.updateGenre(genre);
-    }
 }

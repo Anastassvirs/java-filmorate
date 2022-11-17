@@ -11,10 +11,4 @@ public interface GenreStorage {
     List<Genre> findByFilmId(Long id);
 
     Genre findById(Long id);
-
-    Genre saveGenre(Genre genre);
-
-    Genre updateGenre(Genre genre);
-
-    Genre deleteGenre(Genre genre);
 }

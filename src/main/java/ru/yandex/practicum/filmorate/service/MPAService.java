@@ -23,17 +23,6 @@ public class MpaService {
         return storage.findAll();
     }
 
-    public Mpa createMPA(Mpa mpa) {
-        return storage.saveMPA(mpa);
-    }
-
-    public Mpa updateMPA(Mpa mpa) {
-        return storage.updateMPA(mpa);
-    }
-
-    public Mpa deleteMPA(Mpa mpa) {
-        return storage.deleteMPA(mpa);    }
-
     public Mpa findById(Long id) {
         return storage.findById(id);
     }

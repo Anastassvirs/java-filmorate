@@ -8,10 +8,4 @@ public interface MpaStorage {
     List<Mpa> findAll();
 
     Mpa findById(Long id);
-
-    Mpa saveMPA(Mpa mpa);
-
-    Mpa updateMPA(Mpa mpa);
-
-    Mpa deleteMPA(Mpa mpa);
 }
