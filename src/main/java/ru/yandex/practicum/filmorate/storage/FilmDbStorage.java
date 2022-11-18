@@ -155,4 +155,14 @@ public class FilmDbStorage implements FilmStorage{
         jdbcTemplate.update(sql, film.getId());
         return film;
     }
+
+    @Override
+    public List<Film> findfirstNByLikes(Integer size) {
+        return jdbcTemplate.query("SELECT * " +
+                "        FROM film AS f " +
+                "        LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "        GROUP BY f.film_id" +
+                "        ORDER BY COUNT(l.user_id) DESC " +
+                "        LIMIT ?;", this::makeFilm, size);
+    }
 }

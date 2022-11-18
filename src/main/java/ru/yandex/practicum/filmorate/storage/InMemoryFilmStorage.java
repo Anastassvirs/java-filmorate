@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -74,6 +75,18 @@ public class InMemoryFilmStorage implements FilmStorage{
     public Film deleteFilm(Film film) {
         films.remove(film.getId());
         return film;
+    }
+
+    @Override
+    public List<Film> findfirstNByLikes(Integer size) {
+        return findAll().stream()
+                .sorted(this::compare)
+                .limit(size)
+                .collect(Collectors.toList());
+    }
+
+    private int compare(Film f0, Film f1) {
+        return f1.getLikes().size() - f0.getLikes().size();
     }
 
     private void updateList() {

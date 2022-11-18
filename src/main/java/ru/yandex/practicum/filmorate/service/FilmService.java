@@ -56,13 +56,6 @@ public class FilmService {
     }
 
     public List<Film> findfirstNByLikes(Integer size) {
-        return storage.findAll().stream()
-                .sorted(this::compare)
-                .limit(size)
-                .collect(Collectors.toList());
-    }
-
-    private int compare(Film f0, Film f1) {
-        return userService.findLikesOfFilm(f1.getId()).size() - userService.findLikesOfFilm(f0.getId()).size();
+        return storage.findfirstNByLikes(size);
     }
 }

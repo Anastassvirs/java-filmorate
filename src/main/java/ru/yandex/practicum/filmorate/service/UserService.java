@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
-import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -68,7 +67,7 @@ public class UserService{
         storage.deleteLike(filmId, userId);
     }
 
-    List<Long> findLikesOfFilm(Long filmId) {
+    public List<Long> findLikesOfFilm(Long filmId) {
         return storage.findLikesOfFilm(filmId);
     }
 }
