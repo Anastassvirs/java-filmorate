@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,25 +26,34 @@ import java.util.Set;
 public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
-    MPAStorage mpaStorage;
-    GenreStorage genreStorage;
+    private final MPAStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate){
+    @Autowired
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MPAStorage mpaStorage, GenreStorage genreStorage){
         this.jdbcTemplate=jdbcTemplate;
-        mpaStorage = new MPADbStorage(jdbcTemplate);
-        genreStorage = new GenreDbStorage(jdbcTemplate);
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
+     @Override
     public List<Film> findAll() {
         return jdbcTemplate.query("SELECT * FROM film", (rs, rowNum) -> makeFilm(rs, rowNum));
     }
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+        LocalDate releaseDate;
+        rs.getDate("release_date");
+        if(rs.wasNull()) {
+            releaseDate = null;
+        } else {
+            releaseDate = rs.getDate("release_date").toLocalDate();
+        }
         return Film.builder()
                 .id(rs.getLong("film_id"))
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
-                .releaseDate(rs.getDate("release_date").toLocalDate())
+                .releaseDate(releaseDate)
                 .duration(rs.getLong("duration"))
                 .rate(rs.getLong("rate"))
                 .mpa(mpaStorage.findById(rs.getLong("mpa_rate_id")))
@@ -73,7 +83,11 @@ public class FilmDbStorage implements FilmStorage{
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 stmt.setString(1, film.getName());
                 stmt.setString(2, film.getDescription());
-                stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
+                if (film.getReleaseDate() != null) {
+                    stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
+                } else {
+                    stmt.setDate(3, null);
+                }
                 stmt.setLong(4, film.getDuration());
                 stmt.setLong(5, film.getRate());
                 stmt.setLong(6, film.getMpa().getId());
@@ -90,7 +104,6 @@ public class FilmDbStorage implements FilmStorage{
                     log.debug("Жанры фильма {} обновлены", film.getName());
                 }
             }
-
             return findById(id);
         }
         return null;

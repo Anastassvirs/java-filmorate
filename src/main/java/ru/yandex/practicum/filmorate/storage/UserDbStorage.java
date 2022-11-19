@@ -10,7 +10,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
@@ -28,9 +27,10 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final LikeStorage likeStorage;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
-        this.likeStorage = new LikeDbStorage(jdbcTemplate);
+    @Autowired
+    public UserDbStorage(JdbcTemplate jdbcTemplate, LikeDbStorage likeStorage){
+        this.jdbcTemplate = jdbcTemplate;
+        this.likeStorage = likeStorage;
     }
 
     @Override
@@ -39,12 +39,19 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User makeUser(ResultSet rs, int rowNum) throws SQLException {
+        LocalDate birthday;
+        rs.getDate("birthday");
+        if(rs.wasNull()) {
+            birthday = null;
+        } else {
+            birthday = rs.getDate("birthday").toLocalDate();
+        }
         return User.builder()
                 .id(rs.getLong("user_id"))
                 .email(rs.getString("email"))
                 .login(rs.getString("login"))
                 .name(rs.getString("name"))
-                .birthday(rs.getDate("birthday").toLocalDate())
+                .birthday(birthday)
                 .build();
     }
 
@@ -75,7 +82,11 @@ public class UserDbStorage implements UserStorage {
                 stmt.setString(1, user.getEmail());
                 stmt.setString(2, user.getLogin());
                 stmt.setString(3, user.getName());
-                stmt.setDate(4, Date.valueOf(user.getBirthday()));
+                if (user.getBirthday() != null) {
+                    stmt.setDate(4, Date.valueOf(user.getBirthday()));
+                } else {
+                    stmt.setDate(4, null);
+                }
                 return stmt;
             }, keyHolder);
 
