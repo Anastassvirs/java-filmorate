@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,19 +23,13 @@ import java.util.Set;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 @Qualifier("daoFilmStorage")
 public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
     private final MPAStorage mpaStorage;
     private final GenreStorage genreStorage;
-
-    @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MPAStorage mpaStorage, GenreStorage genreStorage){
-        this.jdbcTemplate=jdbcTemplate;
-        this.mpaStorage = mpaStorage;
-        this.genreStorage = genreStorage;
-    }
 
      @Override
     public List<Film> findAll() {

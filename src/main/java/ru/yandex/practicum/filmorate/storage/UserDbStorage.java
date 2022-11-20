@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,17 +22,12 @@ import java.util.Set;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 @Qualifier("daoUserStorage")
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final LikeStorage likeStorage;
-
-    @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate, LikeDbStorage likeStorage){
-        this.jdbcTemplate = jdbcTemplate;
-        this.likeStorage = likeStorage;
-    }
 
     @Override
     public List<User> findAll() {
