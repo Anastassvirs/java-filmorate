@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
 public class User {
     private Long id;
     @NotNull
@@ -22,11 +24,6 @@ public class User {
     private String name;
     private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
-
-    public User(String email, String login) {
-        this.email = email;
-        this.login = login;
-    }
 
     public void addToFriends(Long userId) {
         friends.add(userId);

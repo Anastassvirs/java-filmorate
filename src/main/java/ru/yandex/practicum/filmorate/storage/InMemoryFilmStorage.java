@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
@@ -8,13 +9,12 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@Qualifier("memoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage{
 
     private HashMap<Long, Film> films;
@@ -44,7 +44,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public Film saveFilm(Film film) {
         if (filmAlreadyExist(film)) {
             log.debug("Произошла ошибка: Введенный фильм уже зарегистрирован");
             throw new AlreadyExistException("Такой фильм уже зарегистрирован");
@@ -75,6 +75,18 @@ public class InMemoryFilmStorage implements FilmStorage{
     public Film deleteFilm(Film film) {
         films.remove(film.getId());
         return film;
+    }
+
+    @Override
+    public List<Film> findfirstNByLikes(Integer size) {
+        return findAll().stream()
+                .sorted(this::compare)
+                .limit(size)
+                .collect(Collectors.toList());
+    }
+
+    private int compare(Film f0, Film f1) {
+        return f1.getLikes().size() - f0.getLikes().size();
     }
 
     private void updateList() {

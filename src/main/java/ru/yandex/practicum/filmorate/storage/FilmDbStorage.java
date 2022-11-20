@@ -1,0 +1,176 @@
+package ru.yandex.practicum.filmorate.storage;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundAnythingException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+@Qualifier("daoFilmStorage")
+public class FilmDbStorage implements FilmStorage{
+
+    private final JdbcTemplate jdbcTemplate;
+    private final MPAStorage mpaStorage;
+    private final GenreStorage genreStorage;
+
+     @Override
+    public List<Film> findAll() {
+        return jdbcTemplate.query("SELECT * FROM film", (rs, rowNum) -> makeFilm(rs, rowNum));
+    }
+
+    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+        LocalDate releaseDate =
+                rs.getDate("release_date") == null ?
+                        null : rs.getDate("release_date").toLocalDate();
+        return Film.builder()
+                .id(rs.getLong("film_id"))
+                .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .releaseDate(releaseDate)
+                .duration(rs.getLong("duration"))
+                .rate(rs.getLong("rate"))
+                .mpa(mpaStorage.findById(rs.getLong("mpa_rate_id")))
+                .genres(genreStorage.findByFilmId(rs.getLong("film_id")))
+                .build();
+    }
+
+    @Override
+    public Film findById(Long id) {
+        String sql = "SELECT * FROM film WHERE film_id = ?";
+        try {
+            log.info("Ищем фильм c id: {}", id);
+            return jdbcTemplate.queryForObject(sql, this::makeFilm, id);
+        } catch (EmptyResultDataAccessException e) {
+            log.info("Фильм с идентификатором {} не найден.", id);
+            throw new NotFoundAnythingException("Искомый фильм не существует");
+        }
+    }
+
+    @Override
+    public Film saveFilm(Film film) {
+        if (validate(film)) {
+            String sqlQuery = "INSERT INTO film (name, description, release_date, duration, rate, mpa_rate_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement stmt = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+                stmt.setString(1, film.getName());
+                stmt.setString(2, film.getDescription());
+                if (film.getReleaseDate() != null) {
+                    stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
+                } else {
+                    stmt.setDate(3, null);
+                }
+                stmt.setLong(4, film.getDuration());
+                stmt.setLong(5, film.getRate());
+                try {
+                    stmt.setLong(6, film.getMPAId());
+                } catch (NullPointerException e) {
+                    throw new ValidationException("Mpa не должен быть null");
+                }
+                return stmt;
+            }, keyHolder);
+            log.debug("Добавлен новый фильм: {}", film);
+
+            Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
+
+            if(film.getGenres() != null) {
+                for (Genre genre: film.getGenres()) {
+                    String sql = "INSERT INTO film_genre VALUES(?, ?)";
+                    jdbcTemplate.update(sql, id, genre.getId());
+                    log.debug("Жанры фильма {} обновлены", film.getName());
+                }
+            }
+            return findById(id);
+        }
+        return null;
+    }
+
+    private boolean validate(Film film) {
+        if (Objects.nonNull(film.getDescription()) && film.getDescription().length() > 200) {
+            log.debug("Произошла ошибка: Максимальная длина описания — 200 символов");
+            throw new ValidationException("Максимальная длина описания — 200 символов");
+        } else if (Objects.nonNull(film.getReleaseDate())
+                && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.debug("Произошла ошибка: Дата релиза должна быть не раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза должна быть не раньше 28 декабря 1895 года");
+        } else if (Objects.nonNull(film.getDuration()) && (film.getDuration().intValue() <= 0)) {
+            log.debug("Произошла ошибка: Продолжительность фильма должна быть положительной");
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
+        }
+        return true;
+    }
+
+    @Override
+    public Film updateFilm(Film film) {
+        findById(film.getId());
+        if(validate(film)) {
+            String sqlQuery = "UPDATE film SET " +
+                    "name = ?," +
+                    "description = ?," +
+                    "release_date = ?," +
+                    "duration = ?," +
+                    "rate = ?," +
+                    "mpa_rate_id = ? " +
+                    "WHERE film_id = ?";
+            jdbcTemplate.update(sqlQuery
+                    , film.getName()
+                    , film.getDescription()
+                    , Date.valueOf(film.getReleaseDate())
+                    , film.getDuration()
+                    , film.getRate()
+                    , film.getMpa().getId()
+                    , film.getId());
+
+            if(film.getGenres() != null) {
+                Set<Genre> s = new LinkedHashSet<>(film.getGenres());
+                String sql = "DELETE FROM film_genre WHERE film_id = ?";
+                jdbcTemplate.update(sql, film.getId());
+                if(film.getGenres().size() != 0) {
+                    for (Genre genre : s) {
+                        sql = "MERGE INTO film_genre (film_id, genre_id) VALUES(?, ?)";
+                        jdbcTemplate.update(sql, film.getId(), genre.getId());
+                    }
+                    log.debug("Жанры фильма {} обновлены", film.getName());
+                }
+            }
+            log.debug("Обновлен фильм: {}", film);
+        }
+        return findById(film.getId());
+    }
+
+    @Override
+    public Film deleteFilm(Film film) {
+        String sql = "DELETE FROM film WHERE film_id = ?";
+        jdbcTemplate.update(sql, film.getId());
+        return film;
+    }
+
+    @Override
+    public List<Film> findfirstNByLikes(Integer size) {
+        return jdbcTemplate.query("SELECT * " +
+                "        FROM film AS f " +
+                "        LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "        GROUP BY f.film_id" +
+                "        ORDER BY COUNT(l.user_id) DESC " +
+                "        LIMIT ?;", this::makeFilm, size);
+    }
+}

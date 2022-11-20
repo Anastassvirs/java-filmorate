@@ -9,9 +9,11 @@ public interface FilmStorage {
 
     Film findById(Long id);
 
-    Film createFilm(Film film);
+    Film saveFilm(Film film);
 
     Film updateFilm(Film film);
 
     Film deleteFilm(Film film);
+
+    List<Film> findfirstNByLikes(Integer size);
 }
