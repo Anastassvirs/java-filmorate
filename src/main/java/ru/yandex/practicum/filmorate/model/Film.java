@@ -37,4 +37,8 @@ public class Film {
     public void deleteLike(Long userId) {
         likes.remove(userId);
     }
+
+    public Long getMPAId() {
+        return mpa == null ? null : mpa.getId();
+    }
 }

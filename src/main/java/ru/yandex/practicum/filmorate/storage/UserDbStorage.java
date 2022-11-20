@@ -35,13 +35,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User makeUser(ResultSet rs, int rowNum) throws SQLException {
-        LocalDate birthday;
-        rs.getDate("birthday");
-        if(rs.wasNull()) {
-            birthday = null;
-        } else {
-            birthday = rs.getDate("birthday").toLocalDate();
-        }
+        LocalDate birthday =
+                rs.getDate("birthday") == null ? null : rs.getDate("birthday").toLocalDate();
         return User.builder()
                 .id(rs.getLong("user_id"))
                 .email(rs.getString("email"))
@@ -171,11 +166,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> findUserFriends(Long userId) {
-        String sql = "SELECT u.user_id," +
-              "       u.email," +
-              "       u.login," +
-              "       u.name," +
-              "       u.birthday " +
+        String sql = "SELECT *" +
               "FROM users AS u," +
               "     friendship AS f " +
               "WHERE f.friend_id = u.user_id " +
@@ -185,27 +176,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> findMutualFriends(Long userId, Long friendId) {
-        String sql1 = "SELECT u.user_id," +
-                "       u.email," +
-                "       u.login," +
-                "       u.name," +
-                "       u.birthday " +
+        String sql = "SELECT *" +
                 "FROM users AS u," +
-                "     friendship AS f " +
-                "WHERE f.friend_id = u.user_id " +
-                "AND f.user_id = ?";
-        String sql2 = "SELECT u.user_id," +
-                "       u.email," +
-                "       u.login," +
-                "       u.name," +
-                "       u.birthday " +
-                "FROM users AS u," +
-                "     friendship AS f " +
-                "WHERE f.friend_id = u.user_id " +
-                "AND f.user_id = ?";
-        String sql = sql1 +
-                " INTERSECT " +
-                sql2;
+                "     friendship AS f, " +
+                "     friendship AS f2 " +
+                "WHERE f.friend_id = u.user_id AND f2.friend_id = u.user_id " +
+                "AND f.user_id = ? AND f2.user_id = ?";
         return jdbcTemplate.query(sql, this::makeUser, userId, friendId);
     }
 

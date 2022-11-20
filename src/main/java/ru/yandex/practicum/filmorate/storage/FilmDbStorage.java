@@ -37,13 +37,9 @@ public class FilmDbStorage implements FilmStorage{
     }
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        LocalDate releaseDate;
-        rs.getDate("release_date");
-        if(rs.wasNull()) {
-            releaseDate = null;
-        } else {
-            releaseDate = rs.getDate("release_date").toLocalDate();
-        }
+        LocalDate releaseDate =
+                rs.getDate("release_date") == null ?
+                        null : rs.getDate("release_date").toLocalDate();
         return Film.builder()
                 .id(rs.getLong("film_id"))
                 .name(rs.getString("name"))
@@ -85,12 +81,16 @@ public class FilmDbStorage implements FilmStorage{
                 }
                 stmt.setLong(4, film.getDuration());
                 stmt.setLong(5, film.getRate());
-                stmt.setLong(6, film.getMpa().getId());
+                try {
+                    stmt.setLong(6, film.getMPAId());
+                } catch (NullPointerException e) {
+                    throw new ValidationException("Mpa не должен быть null");
+                }
                 return stmt;
             }, keyHolder);
             log.debug("Добавлен новый фильм: {}", film);
 
-            Long id = keyHolder.getKey().longValue();
+            Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
             if(film.getGenres() != null) {
                 for (Genre genre: film.getGenres()) {
